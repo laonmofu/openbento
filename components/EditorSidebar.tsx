@@ -254,14 +254,14 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
     ? `${analyticsSupabaseUrl}/functions/v1/openbento-analytics-admin`
     : '';
 
-  return (
-    <div 
-        className={`fixed right-0 top-0 h-screen w-full md:w-[400px] bg-white/95 backdrop-blur-xl z-50 shadow-2xl shadow-black/10 transform transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] flex flex-col border-l border-gray-200/50
-        ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
-    >
+	  return (
+	    <div 
+	        className={`fixed right-0 top-0 h-screen w-full md:w-[400px] bg-white z-50 shadow-xl transform transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] flex flex-col border-l border-gray-200
+	        ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
+	    >
       
       {/* Header */}
-      <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-white to-gray-50/80 sticky top-0 z-20">
+	      <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-20">
         <div>
           <h2 className="font-bold text-lg text-gray-900 tracking-tight">
             {editingBlock ? 'Edit Block' : 'Builder'}
@@ -518,12 +518,12 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
                 </div>
             </div>
 
-            {/* Appearance (Colors & Gradients) */}
-            {editingBlock.type !== BlockType.SPACER && (
-                <div className="space-y-4">
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                        <Palette size={14}/> Background Style
-                    </label>
+	            {/* Appearance (Colors) */}
+	            {editingBlock.type !== BlockType.SPACER && (
+	                <div className="space-y-4">
+	                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+	                        <Palette size={14}/> Background
+	                    </label>
                     
                     {/* Solid Colors */}
                     <div className="space-y-2">
@@ -545,30 +545,8 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
                         </div>
                     </div>
 
-                    {/* Gradients */}
-                    <div className="space-y-2 mt-4">
-                        <span className="text-[10px] font-semibold text-gray-400 uppercase">Gradients</span>
-                        <div className="grid grid-cols-2 gap-3">
-                            {BASE_COLORS.filter(c => c.type === 'gradient').map(c => {
-                                const active = isSelectedColor(c);
-                                return (
-                                    <button
-                                        key={c.name}
-                                        onClick={() => updateBlock({...editingBlock, color: c.bg, textColor: c.text, customBackground: c.hex})}
-                                        style={{ background: c.hex }}
-                                        className={`h-12 rounded-xl border border-black/5 shadow-sm transition-all transform active:scale-95 ${active ? 'ring-2 ring-offset-2 ring-gray-900 scale-105' : 'hover:scale-105'} flex items-center justify-center relative overflow-hidden`}
-                                        title={c.name}
-                                    >
-                                        <span className="relative z-10 text-xs font-bold text-white drop-shadow-md">{c.name}</span>
-                                        {active && <div className="absolute top-1 right-1 text-white drop-shadow-md"><CheckCircle2 size={14}/></div>}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                </div>
-            )}
+	                </div>
+	            )}
 
             <div className="pt-6 border-t border-gray-100">
                  <button 
@@ -586,13 +564,13 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
              {/* ... Profile ... */}
              <section className="space-y-5">
                 <div className="flex items-center gap-2">
-                    <div className="w-1 h-5 bg-gradient-to-b from-violet-500 to-purple-600 rounded-full"></div>
+	                    <div className="w-1 h-5 bg-gray-900 rounded-full"></div>
                     <h3 className="text-base font-bold text-gray-900">Profile Identity</h3>
                 </div>
                 
                 <div className="flex gap-5 items-start">
                     <div className="relative group">
-                        <div className="w-20 h-20 rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 ring-2 ring-white shadow-lg group-hover:ring-violet-200 transition-all cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+	                        <div className="w-20 h-20 rounded-2xl overflow-hidden bg-gray-100 ring-2 ring-white shadow-lg group-hover:ring-gray-200 transition-all cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                             <img src={profile.avatarUrl} alt="Avatar" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
                             <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
                                 <Upload className="text-white w-5 h-5" />
@@ -738,37 +716,37 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
              <section className="space-y-5">
                 <div className="flex items-center gap-2">
-                    <div className="w-1 h-5 bg-gradient-to-b from-amber-400 to-orange-500 rounded-full"></div>
+	                    <div className="w-1 h-5 bg-gray-900 rounded-full"></div>
                     <h3 className="text-base font-bold text-gray-900">Add Content</h3>
                 </div>
                 
-                <div className="grid grid-cols-3 gap-3">
-                    {[
-                        { type: BlockType.LINK, label: 'Link', icon: Link, gradient: 'from-blue-500 to-cyan-500' },
-                        { type: BlockType.SOCIAL, label: 'Social', icon: Github, gradient: 'from-violet-500 to-purple-600' },
-                        { type: BlockType.IMAGE, label: 'Image', icon: ImageIcon, gradient: 'from-pink-500 to-rose-500' },
-                        { type: BlockType.TEXT, label: 'Note', icon: TypeIcon, gradient: 'from-emerald-500 to-teal-500' },
-                        { type: BlockType.MAP, label: 'Map', icon: MapPin, gradient: 'from-orange-500 to-amber-500' },
-                        { type: BlockType.SPACER, label: 'Spacer', icon: MoveVertical, gradient: 'from-gray-400 to-gray-500' },
-                    ].map((btn) => (
-                        <button 
-                            key={btn.type} onClick={() => addBlock(btn.type)} 
-                            className="flex flex-col items-center gap-2 p-4 bg-white border border-gray-100 rounded-2xl hover:border-gray-200 hover:shadow-lg transition-all group"
-                        >
-                            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${btn.gradient} text-white flex items-center justify-center group-hover:scale-110 group-hover:shadow-md transition-all`}>
-                                <btn.icon size={18}/>
-                            </div>
-                            <span className="text-xs font-semibold text-gray-600">{btn.label}</span>
-                        </button>
-                    ))}
-                </div>
+	                <div className="grid grid-cols-3 gap-3">
+	                    {[
+	                        { type: BlockType.LINK, label: 'Link', icon: Link, color: 'bg-blue-600' },
+	                        { type: BlockType.SOCIAL, label: 'Social', icon: Github, color: 'bg-violet-600' },
+	                        { type: BlockType.IMAGE, label: 'Image', icon: ImageIcon, color: 'bg-pink-600' },
+	                        { type: BlockType.TEXT, label: 'Note', icon: TypeIcon, color: 'bg-emerald-600' },
+	                        { type: BlockType.MAP, label: 'Map', icon: MapPin, color: 'bg-amber-500' },
+	                        { type: BlockType.SPACER, label: 'Spacer', icon: MoveVertical, color: 'bg-gray-600' },
+	                    ].map((btn) => (
+	                        <button 
+	                            key={btn.type} onClick={() => addBlock(btn.type)} 
+	                            className="flex flex-col items-center gap-2 p-4 bg-white border border-gray-100 rounded-2xl hover:border-gray-200 hover:shadow-lg transition-all group"
+	                        >
+	                            <div className={`w-10 h-10 rounded-xl ${btn.color} text-white flex items-center justify-center shadow-sm transition-colors`}>
+	                                <btn.icon size={18}/>
+	                            </div>
+	                            <span className="text-xs font-semibold text-gray-600">{btn.label}</span>
+	                        </button>
+	                    ))}
+	                </div>
              </section>
           </div>
         )}
 	      </div>
 
 	      {profile.showBranding !== false && (
-	        <div className="p-4 bg-gradient-to-r from-gray-50 to-white border-t border-gray-100">
+	        <div className="p-4 bg-gray-50 border-t border-gray-100">
 	           <p className="text-xs text-center text-gray-400 font-medium">OpenBento &bull; Open Source</p>
 	        </div>
 	      )}

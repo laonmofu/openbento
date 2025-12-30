@@ -39,7 +39,7 @@ function getStyleFromClass(className: string | undefined, type: 'bg' | 'text'): 
 const generateCSS = (profileName: string) => `
 :root {
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  --bg-color: linear-gradient(135deg, #f8f9fa 0%, #f3f4f6 50%, #f0f1f3 100%);
+  --bg-color: #f8fafc;
   --text-main: #111827;
   --text-muted: #6b7280;
   --radius: 1.75rem;
@@ -56,28 +56,6 @@ body {
   opacity: 0; 
   animation: fadeInBody 0.8s ease-out forwards;
   position: relative;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 50%;
-  height: 50%;
-  background: radial-gradient(circle at top right, rgba(139, 92, 246, 0.08), transparent 50%);
-  pointer-events: none;
-}
-
-body::after {
-  content: '';
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 50%;
-  height: 50%;
-  background: radial-gradient(circle at bottom left, rgba(251, 191, 36, 0.06), transparent 50%);
-  pointer-events: none;
 }
 
 @keyframes fadeInBody {
@@ -113,7 +91,7 @@ body::after {
   margin-bottom: 1.5rem;
   box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15);
   border: 4px solid white;
-  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  background: #f3f4f6;
   transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
@@ -139,10 +117,7 @@ body::after {
   letter-spacing: -0.04em;
   margin-bottom: 0.75rem;
   line-height: 1;
-  background: linear-gradient(135deg, #111827, #374151);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-main);
 }
 
 .profile-bio {
@@ -289,12 +264,12 @@ body::after {
   width: 2rem;
   height: 2rem;
   border-radius: 0.5rem;
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+  background: #dc2626;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
   flex-shrink: 0;
 }
 
@@ -400,7 +375,7 @@ body::after {
 .yt-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
+  background: rgba(0,0,0,0.55);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -472,7 +447,7 @@ body::after {
 .yt-single-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.15) 100%);
+  background: rgba(0,0,0,0.55);
 }
 
 .yt-single-content {
@@ -880,7 +855,7 @@ const generateHtml = (data: SiteData, imageMap: Record<string, string>): string 
                 if (isLinkWithImage) {
                      contentHtml = `
                      <div style="position:absolute; inset:0; background-image:url('${blockImageSrc}'); background-size:cover; background-position:center;" class="full-img"></div>
-                     <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.6), transparent);"></div>
+	                     <div style="position:absolute; inset:0; background:rgba(0,0,0,0.5);"></div>
                      <div class="content-wrapper" style="color:white; z-index:2;">
                          <div class="icon-box" style="background:rgba(255,255,255,0.25); color:white; backdrop-filter:blur(5px); border:1px solid rgba(255,255,255,0.3);">
                               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>

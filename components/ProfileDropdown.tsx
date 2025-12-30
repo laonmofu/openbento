@@ -187,7 +187,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
                   onClick={() => setIsCreating(true)}
                   className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center">
                     <Plus size={16} className="text-white" />
                   </div>
                   <span className="text-sm font-medium text-gray-700">New Bento</span>
@@ -202,4 +202,3 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
 };
 
 export default ProfileDropdown;
-

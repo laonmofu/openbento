@@ -13,9 +13,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="bg-white/70 backdrop-blur-xl rounded-2xl border border-gray-200/50 shadow-sm px-4 py-3 flex items-center justify-between">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-gradient-to-br from-gray-900 to-gray-700 text-white rounded-xl flex items-center justify-center font-bold text-sm shadow-lg">
+              <div className="w-9 h-9 bg-gray-900 text-white rounded-xl flex items-center justify-center font-bold text-sm shadow-sm">
                 B
               </div>
               <span className="font-bold text-lg tracking-tight">OpenBento</span>
@@ -46,7 +46,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
         {/* Decorative elements */}
         <div className="absolute top-20 left-10 w-72 h-72 bg-purple-200 rounded-full blur-[120px] opacity-40" />
         <div className="absolute top-40 right-10 w-96 h-96 bg-blue-200 rounded-full blur-[120px] opacity-30" />
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-t from-amber-100 to-transparent rounded-full blur-[100px] opacity-30" />
         
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <motion.div
@@ -59,7 +58,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
               href="https://bento.me/home/bento-sunset" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 text-sm font-medium text-orange-700 mb-6 hover:shadow-md transition-all group"
+              className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-amber-50 border border-amber-200 text-sm font-medium text-amber-800 mb-6 hover:shadow-md transition-all group"
             >
               <span className="text-lg">🌅</span>
               <span>Bento.me shuts down Feb 13, 2026 — <span className="underline group-hover:text-orange-900">Don't be sad, OpenBento is here!</span></span>
@@ -68,25 +67,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
 
             {/* Main Heading */}
             <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.05] mb-8">
-              <span className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-600 bg-clip-text text-transparent">
-                Craft your digital
-              </span>
+              <span className="text-gray-900">Craft your digital</span>
               <br />
               <span className="relative">
                 identity
                 <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 300 12" fill="none">
-                  <path d="M2 10C50 2 150 2 298 10" stroke="url(#gradient)" strokeWidth="4" strokeLinecap="round"/>
-                  <defs>
-                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#F59E0B" />
-                      <stop offset="100%" stopColor="#EC4899" />
-                    </linearGradient>
-                  </defs>
+                  <path d="M2 10C50 2 150 2 298 10" stroke="#F59E0B" strokeWidth="4" strokeLinecap="round"/>
                 </svg>
               </span>
-              <span className="bg-gradient-to-r from-gray-600 via-gray-800 to-gray-900 bg-clip-text text-transparent">
-                {" "}in minutes.
-              </span>
+              <span className="text-gray-900">{" "}in minutes.</span>
             </h1>
 
             <p className="text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed mb-10">
@@ -130,7 +119,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             className="relative max-w-4xl mx-auto"
           >
             {/* Browser Frame */}
-            <div className="bg-gradient-to-b from-gray-100 to-gray-200 rounded-[28px] p-1 shadow-2xl">
+            <div className="bg-gray-200 rounded-[28px] p-1 shadow-2xl border border-gray-200">
               <div className="bg-white rounded-[24px] overflow-hidden">
                 {/* Browser Bar */}
                 <div className="bg-gray-50 px-4 py-3 flex items-center gap-3 border-b border-gray-100">
@@ -150,20 +139,20 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                 <div className="bg-[#FAFAFA] p-8 min-h-[400px] flex">
                   {/* Left Profile */}
                   <div className="w-1/3 pr-6 flex flex-col justify-center">
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 mb-4 shadow-lg" />
+                    <div className="w-24 h-24 rounded-full bg-gray-200 mb-4 shadow-sm" />
                     <h3 className="text-2xl font-bold text-gray-900">Alex Chen</h3>
                     <p className="text-gray-500 text-sm mt-1">Creative Developer</p>
                   </div>
                   
                   {/* Right Grid */}
                   <div className="flex-1 grid grid-cols-3 gap-3 auto-rows-[80px]">
-                    <div className="col-span-2 row-span-2 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl shadow-md flex items-center justify-center">
+                    <div className="col-span-2 row-span-2 bg-violet-600 rounded-2xl shadow-md flex items-center justify-center">
                       <Play size={32} className="text-white/80" />
                     </div>
                     <div className="bg-gray-900 rounded-2xl shadow-md" />
-                    <div className="bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl shadow-md" />
+                    <div className="bg-amber-500 rounded-2xl shadow-md" />
                     <div className="col-span-2 bg-white rounded-2xl shadow-md border border-gray-100" />
-                    <div className="bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl shadow-md" />
+                    <div className="bg-emerald-600 rounded-2xl shadow-md" />
                   </div>
                 </div>
               </div>
@@ -226,42 +215,42 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                 icon: <div className="text-3xl">🎨</div>, 
                 title: 'Visual Editor', 
                 desc: 'Drag, drop, resize. Build your layout visually without touching code.',
-                color: 'from-pink-50 to-rose-50',
+                bg: 'bg-pink-50',
                 border: 'border-pink-100'
               },
               { 
                 icon: <div className="text-3xl">📱</div>, 
                 title: 'Mobile Responsive', 
                 desc: 'Looks perfect on every device. Preview in real-time.',
-                color: 'from-blue-50 to-indigo-50',
+                bg: 'bg-blue-50',
                 border: 'border-blue-100'
               },
               { 
                 icon: <div className="text-3xl">🔗</div>, 
                 title: 'Rich Integrations', 
                 desc: 'YouTube, Instagram, Maps, and more. Embed dynamic content easily.',
-                color: 'from-violet-50 to-purple-50',
+                bg: 'bg-violet-50',
                 border: 'border-violet-100'
               },
               { 
                 icon: <div className="text-3xl">🚀</div>, 
                 title: 'One-Click Deploy', 
                 desc: 'Export to GitHub Pages or any static host in seconds.',
-                color: 'from-amber-50 to-orange-50',
+                bg: 'bg-amber-50',
                 border: 'border-amber-100'
               },
               { 
                 icon: <div className="text-3xl">🔒</div>, 
                 title: 'Privacy First', 
                 desc: 'No tracking, no analytics, no cookies. Your data stays in your browser.',
-                color: 'from-emerald-50 to-teal-50',
+                bg: 'bg-emerald-50',
                 border: 'border-emerald-100'
               },
               { 
                 icon: <div className="text-3xl">💾</div>, 
                 title: 'Local Storage', 
                 desc: 'Save multiple bentos locally. Switch between projects instantly.',
-                color: 'from-gray-50 to-slate-50',
+                bg: 'bg-gray-50',
                 border: 'border-gray-200'
               },
             ].map((feature, i) => (
@@ -271,7 +260,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className={`bg-gradient-to-br ${feature.color} p-8 rounded-3xl border ${feature.border} hover:shadow-lg transition-all group`}
+                className={`${feature.bg} p-8 rounded-3xl border ${feature.border} hover:shadow-lg transition-all group`}
               >
                 <div className="mb-4">{feature.icon}</div>
                 <h3 className="text-xl font-bold mb-2 group-hover:text-gray-900">{feature.title}</h3>
@@ -320,7 +309,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
 
       {/* Final CTA */}
       <section className="py-32 px-6 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-white via-purple-50/30 to-white" />
+        <div className="absolute inset-0 bg-gray-50" />
         
         <div className="max-w-3xl mx-auto text-center relative z-10">
           <motion.div

@@ -497,13 +497,7 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-stone-100 flex font-sans overflow-x-hidden">
-      
-      {/* Background Pattern */}
-      <div className="fixed inset-0 pointer-events-none opacity-30">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-violet-200/40 to-transparent rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-amber-200/30 to-transparent rounded-full blur-3xl" />
-      </div>
+    <div className="min-h-screen bg-gray-50 flex font-sans overflow-x-hidden">
       
       {/* 1. MAIN PREVIEW CANVAS */}
       <div className="flex-1 relative min-h-screen">
@@ -513,9 +507,9 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
            <div className="max-w-[1800px] mx-auto flex justify-between items-center">
               
               {/* Logo Pill */}
-              <div className="bg-white/90 backdrop-blur-xl px-2 py-2 rounded-2xl shadow-lg shadow-black/5 border border-white/50 flex gap-2 items-center pointer-events-auto select-none">
+              <div className="bg-white px-2 py-2 rounded-2xl shadow-sm border border-gray-200 flex gap-2 items-center pointer-events-auto select-none">
                  {onBack && (
-                   <button onClick={onBack} className="w-9 h-9 bg-gradient-to-br from-gray-900 to-gray-700 text-white rounded-xl flex items-center justify-center hover:from-black hover:to-gray-800 transition-all shadow-md" title="Back to Home">
+                   <button onClick={onBack} className="w-9 h-9 bg-gray-900 text-white rounded-xl flex items-center justify-center hover:bg-black transition-colors shadow-sm" title="Back to Home">
                       <Home size={16} />
                    </button>
                  )}
@@ -550,7 +544,7 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
               <div className="flex gap-2 pointer-events-auto">
                  <button 
                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                   className="bg-white/90 backdrop-blur-xl px-5 py-2.5 rounded-xl shadow-lg shadow-black/5 border border-white/50 text-sm font-semibold text-gray-700 hover:bg-white transition-all flex items-center gap-2"
+                   className="bg-white px-5 py-2.5 rounded-xl shadow-sm border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
                  >
                     {isSidebarOpen ? <Eye size={18}/> : <Layout size={18}/>}
                     <span className="hidden sm:inline">{isSidebarOpen ? 'Preview' : 'Edit'}</span>
@@ -566,7 +560,7 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                        }
                        window.open(url, '_blank', 'noopener,noreferrer');
                      }}
-                     className="bg-white/90 backdrop-blur-xl px-5 py-2.5 rounded-xl shadow-lg shadow-black/5 border border-white/50 text-sm font-semibold text-gray-700 hover:bg-white transition-all flex items-center gap-2"
+                     className="bg-white px-5 py-2.5 rounded-xl shadow-sm border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
                      title="Open your deployed page"
                    >
                      <Globe size={18} />
@@ -581,7 +575,7 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                        // Auto-refresh when opening if we already have a token
                        if (analyticsAdminToken.trim()) fetchAnalytics();
                      }}
-                     className="bg-white/90 backdrop-blur-xl px-5 py-2.5 rounded-xl shadow-lg shadow-black/5 border border-white/50 text-sm font-semibold text-gray-700 hover:bg-white transition-all flex items-center gap-2"
+                     className="bg-white px-5 py-2.5 rounded-xl shadow-sm border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
                      title="View analytics dashboard"
                    >
                      <BarChart3 size={18} />
@@ -591,7 +585,7 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                  
                  <button 
                    onClick={handleExport}
-                   className="bg-gradient-to-r from-gray-900 to-gray-800 text-white px-6 py-2.5 rounded-xl shadow-lg shadow-black/20 hover:from-black hover:to-gray-900 hover:shadow-xl transition-all text-sm font-semibold flex items-center gap-2"
+                   className="bg-gray-900 text-white px-6 py-2.5 rounded-xl shadow-sm hover:bg-black transition-colors text-sm font-semibold flex items-center gap-2"
                  >
                     <Download size={18} /> 
                     <span className="hidden sm:inline">Deploy</span>
@@ -615,7 +609,7 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                 className="relative group cursor-pointer mb-8" 
                 onClick={() => { setEditingBlockId(null); setIsSidebarOpen(true); }}
               >
-                <div className="w-40 h-40 rounded-3xl overflow-hidden ring-4 ring-white shadow-2xl relative z-10 bg-gradient-to-br from-gray-100 to-gray-200">
+                <div className="w-40 h-40 rounded-3xl overflow-hidden ring-4 ring-white shadow-2xl relative z-10 bg-gray-100">
                   {profile.avatarUrl ? (
                     <img src={profile.avatarUrl} alt={profile.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                   ) : (

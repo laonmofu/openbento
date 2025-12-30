@@ -208,7 +208,7 @@ const Block: React.FC<BlockProps> = ({ block, isSelected, isDragTarget, isDraggi
       >
         {/* Drop indicator */}
         {isDragTarget && (
-          <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-1.5 h-16 bg-gradient-to-b from-violet-500 to-purple-600 rounded-full shadow-lg shadow-violet-500/50 animate-pulse z-30" />
+          <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-1.5 h-16 bg-violet-500 rounded-full shadow-md shadow-violet-500/30 animate-pulse z-30" />
         )}
         <div className="absolute top-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-gray-300 z-20 pointer-events-none">
             <GripHorizontal size={20} />
@@ -217,7 +217,7 @@ const Block: React.FC<BlockProps> = ({ block, isSelected, isDragTarget, isDraggi
         <div className={`w-full h-full pointer-events-none flex flex-col ${isSmallBlock ? 'p-3' : 'p-4'}`}>
           {/* YouTube Header - Compact for small blocks */}
           <div className={`flex items-center gap-2 ${isSmallBlock ? 'mb-2 pb-2' : 'mb-3 pb-3'} border-b border-gray-100`}>
-            <div className={`${isSmallBlock ? 'w-7 h-7 rounded-lg' : 'w-9 h-9 rounded-xl'} bg-gradient-to-br from-red-500 to-red-600 text-white flex items-center justify-center shadow-md shadow-red-500/20 shrink-0`}>
+            <div className={`${isSmallBlock ? 'w-7 h-7 rounded-lg' : 'w-9 h-9 rounded-xl'} bg-red-600 text-white flex items-center justify-center shadow-sm shrink-0`}>
               <Youtube size={isSmallBlock ? 14 : 18}/>
             </div>
             <div className="flex-1 min-w-0">
@@ -261,7 +261,7 @@ const Block: React.FC<BlockProps> = ({ block, isSelected, isDragTarget, isDraggi
                     /* Grid items */
                     <>
                       <img src={vid.thumbnail} alt={vid.title} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                      <div className="absolute inset-0 bg-black/35" />
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/vid:opacity-100 transition-all duration-200">
                         <div className={`${isSmallBlock ? 'w-7 h-7' : 'w-9 h-9'} rounded-full bg-red-500 flex items-center justify-center shadow-lg`}>
                           <Play size={isSmallBlock ? 12 : 16} className="text-white ml-0.5" fill="white" />
@@ -313,7 +313,7 @@ const Block: React.FC<BlockProps> = ({ block, isSelected, isDragTarget, isDraggi
     >
       {/* Drop indicator */}
       {isDragTarget && (
-        <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-1.5 h-16 bg-gradient-to-b from-violet-500 to-purple-600 rounded-full shadow-lg shadow-violet-500/50 animate-pulse z-30" />
+        <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-1.5 h-16 bg-violet-500 rounded-full shadow-md shadow-violet-500/30 animate-pulse z-30" />
       )}
       <div className="absolute top-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-current/30 z-20 pointer-events-none">
           <GripHorizontal size={20} />
@@ -321,7 +321,7 @@ const Block: React.FC<BlockProps> = ({ block, isSelected, isDragTarget, isDraggi
 
       {/* Overlay for image backgrounds */}
       {(isRichYoutube || isLinkWithImage) && (
-         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10 group-hover:from-black/70 group-hover:via-black/20 transition-all duration-300 z-0" />
+         <div className="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors duration-300 z-0" />
       )}
 
       <div className="w-full h-full pointer-events-none relative z-10">
@@ -342,7 +342,7 @@ const Block: React.FC<BlockProps> = ({ block, isSelected, isDragTarget, isDraggi
                   src={`https://maps.google.com/maps?q=${encodeURIComponent(block.content || 'Paris')}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
                   loading="lazy"
               ></iframe>
-              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent text-white">
+              <div className="absolute bottom-0 left-0 right-0 p-6 bg-black/60 text-white">
                   <p className="font-bold text-lg flex items-center gap-2"><MapPin size={18}/> {block.title}</p>
               </div>
           </div>
