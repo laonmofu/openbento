@@ -237,17 +237,17 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
 	    >
       
       {/* Header */}
-	      <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-20">
-	        <div>
-	          <h2 className="font-bold text-lg text-gray-900 tracking-tight">
-	            {editingBlock ? 'Edit Block' : 'Edit'}
-	          </h2>
-	          <p className="text-xs text-gray-400 mt-0.5">{editingBlock ? 'Customize your block' : 'Build your layout'}</p>
-	        </div>
-	        <button onClick={closeEdit} className="p-2.5 hover:bg-gray-100 rounded-xl transition-colors text-gray-400 hover:text-gray-600"><X size={18} /></button>
-	      </div>
-
-      <div className="flex-1 overflow-y-auto p-8 space-y-10 no-scrollbar pb-20">
+		      <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-20">
+		        <div>
+		          <h2 className="font-bold text-base text-gray-900 tracking-tight">
+		            {editingBlock ? 'Edit Block' : 'Edit'}
+		          </h2>
+		          <p className="text-xs text-gray-400 mt-0.5">{editingBlock ? 'Customize your block' : 'Build your layout'}</p>
+		        </div>
+		        <button onClick={closeEdit} className="p-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-400 hover:text-gray-600"><X size={18} /></button>
+		      </div>
+	
+	      <div className="flex-1 overflow-y-auto p-5 space-y-7 no-scrollbar pb-20">
         
         {/* EDITING A SPECIFIC BLOCK */}
         {editingBlock ? (

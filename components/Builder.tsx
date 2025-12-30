@@ -13,69 +13,6 @@ interface BuilderProps {
   onBack?: () => void;
 }
 
-const DEPLOY_TARGETS: Record<
-  ExportDeploymentTarget,
-  { label: string; includes: string[]; steps: string[] }
-> = {
-  vercel: {
-    label: 'Vercel',
-    includes: ['vercel.json'],
-    steps: [
-      'Unzip the downloaded package',
-      'Create a new Vercel project (Framework: Other / No build)',
-      'Deploy (your folder is the project root)',
-    ],
-  },
-  netlify: {
-    label: 'Netlify',
-    includes: ['netlify.toml'],
-    steps: [
-      'Unzip the downloaded package',
-      'Netlify → Add new site → Deploy manually (drag & drop the folder)',
-      'Done (SPA redirect is included)',
-    ],
-  },
-  'github-pages': {
-    label: 'GitHub Pages',
-    includes: ['.github/workflows/deploy.yml'],
-    steps: [
-      'Unzip the downloaded package',
-      'Create a new GitHub repository and push files to the main branch',
-      'GitHub → Settings → Pages → Source: GitHub Actions',
-      'Wait for the workflow to finish, then open your Pages URL',
-    ],
-  },
-  docker: {
-    label: 'Docker (nginx)',
-    includes: ['Dockerfile', 'nginx.conf'],
-    steps: [
-      'Unzip the downloaded package',
-      'Run: docker build -t my-bento .',
-      'Run: docker run --rm -p 8080:80 my-bento',
-      'Open: http://localhost:8080',
-    ],
-  },
-  vps: {
-    label: 'VPS (nginx)',
-    includes: ['nginx.conf'],
-    steps: [
-      'Unzip the downloaded package',
-      'Copy files to your server (example: /var/www/bento)',
-      'Configure nginx (use nginx.conf as a starting point)',
-      'Reload nginx and test your domain',
-    ],
-  },
-  heroku: {
-    label: 'Heroku',
-    includes: ['server.js', 'Procfile', 'package.json'],
-    steps: [
-      'Unzip the downloaded package',
-      'Create a Heroku app and deploy the folder as a Node web app',
-      'Heroku will run `npm start` and serve your static page',
-    ],
-  },
-};
-
 const Builder: React.FC<BuilderProps> = ({ onBack }) => {
   // Load initial data from localStorage
   const [activeBento, setActiveBento] = useState<SavedBento | null>(null);
@@ -122,6 +59,15 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
   const [analyticsData, setAnalyticsData] = useState<any>(null);
   const [analyticsError, setAnalyticsError] = useState<string | null>(null);
   const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false);
+  const [supabaseSetupMode, setSupabaseSetupMode] = useState<'existing' | 'create'>('existing');
+  const [supabaseSetupProjectRef, setSupabaseSetupProjectRef] = useState('');
+  const [supabaseSetupDbPassword, setSupabaseSetupDbPassword] = useState('');
+  const [supabaseSetupProjectName, setSupabaseSetupProjectName] = useState('');
+  const [supabaseSetupRegion, setSupabaseSetupRegion] = useState('eu-west-1');
+  const [supabaseSetupOpen, setSupabaseSetupOpen] = useState(false);
+  const [supabaseSetupRunning, setSupabaseSetupRunning] = useState(false);
+  const [supabaseSetupError, setSupabaseSetupError] = useState<string | null>(null);
+  const [supabaseSetupResult, setSupabaseSetupResult] = useState<any>(null);
   
   const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
   const [dragOverBlockId, setDragOverBlockId] = useState<string | null>(null);
@@ -278,7 +224,7 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
 
     const supabaseUrl = profile.analytics?.supabaseUrl?.trim().replace(/\/+$/, '') || '';
     if (!supabaseUrl) {
-      setAnalyticsError('Set your Supabase URL in the sidebar (Analytics section).');
+      setAnalyticsError('Set your Supabase URL in Analytics settings.');
       return;
     }
 
@@ -316,6 +262,120 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
       setIsLoadingAnalytics(false);
     }
   }, [profile, activeBento?.id, analyticsAdminToken, analyticsDays]);
+
+  const inferProjectRefFromSupabaseUrl = useCallback((value: string) => {
+    try {
+      const url = new URL(value);
+      const host = url.hostname.toLowerCase();
+      if (!host.endsWith('.supabase.co')) return '';
+      return host.split('.')[0] || '';
+    } catch {
+      return '';
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!showAnalyticsModal) return;
+    const url = profile?.analytics?.supabaseUrl?.trim() || '';
+    const ref = url ? inferProjectRefFromSupabaseUrl(url) : '';
+    if (ref) setSupabaseSetupProjectRef((prev) => prev || ref);
+  }, [inferProjectRefFromSupabaseUrl, profile?.analytics?.supabaseUrl, showAnalyticsModal]);
+
+  const runSupabaseSetup = useCallback(async () => {
+    if (!import.meta.env.DEV) return;
+    if (!profile) return;
+
+    setSupabaseSetupRunning(true);
+    setSupabaseSetupError(null);
+    setSupabaseSetupResult(null);
+
+    try {
+      const payload: any = {
+        mode: supabaseSetupMode,
+        supabaseUrl: profile.analytics?.supabaseUrl?.trim() || undefined,
+        projectRef: supabaseSetupProjectRef.trim() || undefined,
+        dbPassword: supabaseSetupDbPassword || undefined,
+        projectName: supabaseSetupProjectName.trim() || undefined,
+        region: supabaseSetupRegion.trim() || undefined,
+        adminToken: analyticsAdminToken.trim() || undefined,
+      };
+
+      const res = await fetch('/__openbento/supabase/setup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json().catch(() => ({}));
+
+      if (!res.ok || !json?.ok) {
+        const message = typeof json?.error === 'string' ? json.error : 'Supabase setup failed.';
+        throw new Error(message);
+      }
+
+      setSupabaseSetupResult(json);
+
+      handleSetProfile((prev) => ({
+        ...prev,
+        analytics: {
+          ...(prev.analytics ?? {}),
+          enabled: true,
+          supabaseUrl: json.supabaseUrl || prev.analytics?.supabaseUrl || '',
+        },
+      }));
+
+      if (typeof json?.adminToken === 'string' && json.adminToken.trim()) {
+        setAnalyticsAdminToken(json.adminToken.trim());
+      }
+
+      setAnalyticsError(null);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Supabase setup failed.';
+      setSupabaseSetupError(message);
+    } finally {
+      setSupabaseSetupRunning(false);
+    }
+  }, [
+    analyticsAdminToken,
+    handleSetProfile,
+    profile,
+    supabaseSetupDbPassword,
+    supabaseSetupMode,
+    supabaseSetupProjectName,
+    supabaseSetupProjectRef,
+    supabaseSetupRegion,
+  ]);
+
+  const checkSupabaseStatus = useCallback(async () => {
+    if (!import.meta.env.DEV) return;
+    if (!profile) return;
+
+    setSupabaseSetupRunning(true);
+    setSupabaseSetupError(null);
+    setSupabaseSetupResult(null);
+
+    try {
+      const url = profile.analytics?.supabaseUrl?.trim() || '';
+      const projectRef = supabaseSetupProjectRef.trim() || (url ? inferProjectRefFromSupabaseUrl(url) : '');
+      if (!projectRef) throw new Error('Missing project ref (set it first).');
+
+      const endpoint = new URL('/__openbento/supabase/status', window.location.origin);
+      endpoint.searchParams.set('projectRef', projectRef);
+      if (analyticsAdminToken.trim()) endpoint.searchParams.set('adminToken', analyticsAdminToken.trim());
+
+      const res = await fetch(endpoint.toString());
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json?.ok) {
+        const message = typeof json?.error === 'string' ? json.error : 'Status check failed.';
+        throw new Error(message);
+      }
+      setSupabaseSetupResult(json);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Status check failed.';
+      setSupabaseSetupError(message);
+    } finally {
+      setSupabaseSetupRunning(false);
+    }
+  }, [analyticsAdminToken, inferProjectRefFromSupabaseUrl, profile, supabaseSetupProjectRef]);
 
   useEffect(() => {
     try {
@@ -544,59 +604,59 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
 
               {/* Actions Pill */}
               <div className="flex gap-2 pointer-events-auto">
-                 <button 
-                   onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                   className="bg-white px-5 py-2.5 rounded-xl shadow-sm border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
-                 >
-                    {isSidebarOpen ? <Eye size={18}/> : <Layout size={18}/>}
-                    <span className="hidden sm:inline">{isSidebarOpen ? 'Preview' : 'Edit'}</span>
-                 </button>
+	                 <button 
+	                   onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+	                   className="bg-white px-3.5 py-2 rounded-lg shadow-sm border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+	                 >
+	                    {isSidebarOpen ? <Eye size={16}/> : <Layout size={16}/>}
+	                    <span className="hidden sm:inline">{isSidebarOpen ? 'Preview' : 'Edit'}</span>
+	                 </button>
 
-                 <button
-                   onClick={() => setShowSettingsModal(true)}
-                   className="bg-white px-5 py-2.5 rounded-xl shadow-sm border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
-                   title="Open settings"
-                 >
-                   <Settings size={18} />
-                   <span className="hidden sm:inline">Settings</span>
-                 </button>
+	                 <button
+	                   onClick={() => setShowSettingsModal(true)}
+	                   className="bg-white px-3.5 py-2 rounded-lg shadow-sm border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+	                   title="Open settings"
+	                 >
+	                   <Settings size={16} />
+	                   <span className="hidden sm:inline">Settings</span>
+	                 </button>
 
-                 {import.meta.env.DEV && (
-                   <button
+	                 {import.meta.env.DEV && (
+	                   <button
                      onClick={() => {
                       const previewPath = `${import.meta.env.BASE_URL}preview`;
                       window.open(previewPath, '_blank', 'noopener,noreferrer');
                      }}
-                     className="bg-white px-5 py-2.5 rounded-xl shadow-sm border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
-                     title="Open preview page"
-                   >
-                     <Globe size={18} />
-                     <span className="hidden sm:inline">Preview</span>
-                   </button>
-                 )}
+	                     className="bg-white px-3.5 py-2 rounded-lg shadow-sm border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+	                     title="Open preview page"
+	                   >
+	                     <Globe size={16} />
+	                     <span className="hidden sm:inline">Preview</span>
+	                   </button>
+	                 )}
 
-                 {(import.meta.env.DEV || profile?.analytics?.enabled) && (
-                   <button
+	                 {(import.meta.env.DEV || profile?.analytics?.enabled) && (
+	                   <button
                      onClick={() => {
                        setShowAnalyticsModal(true);
                        // Auto-refresh when opening if we already have a token
                        if (analyticsAdminToken.trim()) fetchAnalytics();
                      }}
-                     className="bg-white px-5 py-2.5 rounded-xl shadow-sm border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
-                     title="View analytics dashboard"
-                   >
-                     <BarChart3 size={18} />
-                     <span className="hidden sm:inline">Analytics</span>
-                   </button>
-                 )}
+	                     className="bg-white px-3.5 py-2 rounded-lg shadow-sm border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+	                     title="View analytics dashboard"
+	                   >
+	                     <BarChart3 size={16} />
+	                     <span className="hidden sm:inline">Analytics</span>
+	                   </button>
+	                 )}
                  
-                 <button 
-                   onClick={handleExport}
-                   className="bg-gray-900 text-white px-6 py-2.5 rounded-xl shadow-sm hover:bg-black transition-colors text-sm font-semibold flex items-center gap-2"
-                 >
-                    <Download size={18} /> 
-                    <span className="hidden sm:inline">Deploy</span>
-                 </button>
+	                 <button 
+	                   onClick={handleExport}
+	                   className="bg-gray-900 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-black transition-colors text-xs font-semibold flex items-center gap-2"
+	                 >
+	                    <Download size={16} /> 
+	                    <span className="hidden sm:inline">Deploy</span>
+	                 </button>
               </div>
            </div>
         </nav>
@@ -983,11 +1043,6 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
         onClose={() => setShowSettingsModal(false)}
         profile={profile}
         setProfile={handleSetProfile}
-        activeBentoId={activeBento?.id}
-        deployTarget={deployTarget}
-        setDeployTarget={setDeployTarget}
-        analyticsAdminToken={analyticsAdminToken}
-        setAnalyticsAdminToken={setAnalyticsAdminToken}
       />
 
       {/* 4. DEPLOY MODAL */}
@@ -999,28 +1054,28 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
           >
-             <motion.div 
+	             <motion.div 
 	                initial={{ scale: 0.9, opacity: 0, y: 20 }}
 	                animate={{ scale: 1, opacity: 1, y: 0 }}
 	                exit={{ scale: 0.9, opacity: 0, y: 20 }}
-	                className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden ring-1 ring-gray-900/5"
+	                className="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden ring-1 ring-gray-900/5"
 	             >
-	                <div className="p-8 pb-6 flex justify-between items-start">
+	                <div className="p-6 pb-4 flex justify-between items-start">
 	                   <div>
-	                       <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4">
-	                           <Share2 size={24}/>
+	                       <div className="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center text-green-700 mb-3">
+	                           <Share2 size={18}/>
 	                       </div>
-	                       <h2 className="text-2xl font-bold text-gray-900">Deploy</h2>
-	                       <p className="text-gray-500 mt-1">
-	                         Choose a deployment target, download the package, then follow <code>DEPLOY.md</code> inside.
+	                       <h2 className="text-xl font-bold text-gray-900">Deploy</h2>
+	                       <p className="text-gray-500 mt-1 text-sm">
+	                         Download the package, then follow <code>DEPLOY.md</code> inside.
 	                       </p>
 	                   </div>
-	                   <button onClick={() => setShowDeployModal(false)} className="p-2 hover:bg-gray-100 rounded-full text-gray-500 transition-colors"><X size={24}/></button>
+	                   <button onClick={() => setShowDeployModal(false)} className="p-2 hover:bg-gray-100 rounded-full text-gray-500 transition-colors"><X size={20}/></button>
 	                </div>
 
-	                <div className="px-8 space-y-6 pb-2">
-	                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-	                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-3">
+	                <div className="px-6 space-y-4 pb-2">
+	                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+	                    <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 space-y-2">
 	                      <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
 	                        Deployment target
 	                      </label>
@@ -1031,7 +1086,7 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
 	                          setHasDownloadedExport(false);
 	                          setExportError(null);
 	                        }}
-	                        className="w-full bg-white border border-gray-200 rounded-xl p-3.5 focus:ring-2 focus:ring-black/5 focus:border-black focus:outline-none transition-all font-semibold text-gray-800"
+	                        className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-black/5 focus:border-black focus:outline-none transition-all font-semibold text-gray-800"
 	                      >
 	                        <option value="vercel">Vercel</option>
 	                        <option value="netlify">Netlify</option>
@@ -1040,17 +1095,9 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
 	                        <option value="heroku">Heroku</option>
 	                        <option value="github-pages">GitHub Pages</option>
 	                      </select>
-	                      <p className="text-[11px] text-gray-400">
-	                        Extra config files included:{' '}
-	                        {DEPLOY_TARGETS[deployTarget].includes.map((f) => (
-	                          <span key={f} className="font-mono mr-2">
-	                            {f}
-	                          </span>
-	                        ))}
-	                      </p>
 	                    </div>
 
-	                    <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex gap-4 items-center">
+	                    <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 flex gap-3 items-center">
 	                      <div className="bg-white p-2 rounded-full shadow-sm border border-gray-100 text-gray-700">
 	                        {isExporting ? (
 	                          <RefreshCw size={20} className="animate-spin" />
@@ -1061,7 +1108,7 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
 	                        )}
 	                      </div>
 	                      <div className="min-w-0">
-	                        <p className="font-semibold text-gray-900 text-sm">
+	                        <p className="font-semibold text-gray-900 text-sm leading-tight">
 	                          {isExporting ? 'Packaging…' : hasDownloadedExport ? 'Package downloaded' : 'Download package'}
 	                        </p>
 	                        <p className="text-gray-500 text-xs break-all">
@@ -1072,41 +1119,25 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
 	                  </div>
 
 	                  {exportError && (
-	                    <div className="bg-red-50 border border-red-100 rounded-2xl p-4 text-sm text-red-700 font-semibold">
+	                    <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-sm text-red-700 font-semibold">
 	                      {exportError}
 	                    </div>
 	                  )}
-
-	                  <div className="space-y-3">
-	                    <h3 className="font-semibold text-gray-900 text-sm uppercase tracking-wider">
-	                      Next steps ({DEPLOY_TARGETS[deployTarget].label})
-	                    </h3>
-	                    <div className="space-y-3">
-	                      {DEPLOY_TARGETS[deployTarget].steps.map((step, i) => (
-	                        <div key={i} className="flex items-start gap-3 text-sm text-gray-600">
-	                          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-bold text-xs mt-0.5">
-	                            {i + 1}
-	                          </span>
-	                          <span>{step}</span>
-	                        </div>
-	                      ))}
-	                    </div>
-	                  </div>
 	                </div>
 
-	                <div className="p-8 pt-6 border-t border-gray-100">
+	                <div className="p-6 pt-4 border-t border-gray-100">
 	                  <div className="flex flex-col sm:flex-row gap-3">
 	                    <button
 	                      onClick={downloadExport}
 	                      disabled={isExporting}
-	                      className="w-full sm:flex-1 py-4 bg-gray-900 text-white rounded-2xl font-bold hover:bg-black transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+	                      className="w-full sm:flex-1 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 	                    >
-	                      {isExporting ? <RefreshCw size={18} className="animate-spin" /> : <Download size={18} />}
+	                      {isExporting ? <RefreshCw size={16} className="animate-spin" /> : <Download size={16} />}
 	                      {hasDownloadedExport ? 'Download again' : 'Download package'}
 	                    </button>
 	                    <button
 	                      onClick={() => setShowDeployModal(false)}
-	                      className="w-full sm:flex-1 py-4 bg-white text-gray-900 rounded-2xl font-bold border border-gray-200 hover:bg-gray-50 transition-all"
+	                      className="w-full sm:flex-1 py-3 bg-white text-gray-900 rounded-xl font-bold border border-gray-200 hover:bg-gray-50 transition-colors"
 	                    >
 	                      Close
 	                    </button>
@@ -1130,24 +1161,230 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                 initial={{ scale: 0.95, opacity: 0, y: 16 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 16 }}
-                className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full overflow-hidden ring-1 ring-gray-900/5"
+                className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden ring-1 ring-gray-900/5"
              >
-                <div className="p-8 pb-6 flex justify-between items-start border-b border-gray-100">
+                <div className="p-6 pb-4 flex justify-between items-start border-b border-gray-100">
                    <div>
-                       <div className="w-12 h-12 bg-violet-100 rounded-full flex items-center justify-center text-violet-600 mb-4">
-                           <BarChart3 size={24}/>
+                       <div className="w-9 h-9 bg-violet-100 rounded-full flex items-center justify-center text-violet-700 mb-3">
+                           <BarChart3 size={18}/>
                        </div>
-                       <h2 className="text-2xl font-bold text-gray-900">Analytics</h2>
+                       <h2 className="text-xl font-bold text-gray-900">Analytics</h2>
                        <p className="text-gray-500 mt-1 text-sm">
                          Site ID: <span className="font-mono text-xs">{activeBento?.id || '—'}</span>
                        </p>
                    </div>
-                   <button onClick={() => setShowAnalyticsModal(false)} className="p-2 hover:bg-gray-100 rounded-full text-gray-500 transition-colors"><X size={24}/></button>
+                   <button onClick={() => setShowAnalyticsModal(false)} className="p-2 hover:bg-gray-100 rounded-full text-gray-500 transition-colors"><X size={20}/></button>
                 </div>
 
-                <div className="p-8 pt-6 space-y-6 max-h-[70vh] overflow-y-auto">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="md:col-span-2 bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-3">
+                <div className="p-6 pt-4 space-y-5 max-h-[70vh] overflow-y-auto">
+                  <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 space-y-3">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Supabase</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          URL is used for tracking + dashboard. Analytics is enabled on export when the URL is set.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleSetProfile((prev) => ({
+                            ...prev,
+                            analytics: {
+                              ...(prev.analytics ?? {}),
+                              enabled: !(prev.analytics?.enabled ?? false),
+                            },
+                          }))
+                        }
+                        className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
+                          profile.analytics?.enabled ? 'bg-gray-900' : 'bg-gray-200'
+                        }`}
+                        aria-pressed={!!profile.analytics?.enabled}
+                        aria-label="Toggle analytics"
+                      >
+                        <span
+                          className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                            profile.analytics?.enabled ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <input
+                        type="text"
+                        value={profile.analytics?.supabaseUrl || ''}
+                        onChange={(e) =>
+                          handleSetProfile((prev) => ({
+                            ...prev,
+                            analytics: {
+                              ...(prev.analytics ?? {}),
+                              supabaseUrl: e.target.value,
+                            },
+                          }))
+                        }
+                        className="flex-1 bg-white border border-gray-200 rounded-xl p-2.5 focus:ring-2 focus:ring-black/5 focus:border-black focus:outline-none transition-all font-medium text-gray-700"
+                        placeholder="https://xxxx.supabase.co"
+                      />
+                      {import.meta.env.DEV && (
+                        <button
+                          type="button"
+                          onClick={() => setSupabaseSetupOpen((v) => !v)}
+                          className="px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                          {supabaseSetupOpen ? 'Hide setup' : 'Setup (Dev)'}
+                        </button>
+                      )}
+                    </div>
+
+                    {import.meta.env.DEV && supabaseSetupOpen && (
+                      <div className="pt-2 space-y-3">
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setSupabaseSetupMode('existing')}
+                            className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${
+                              supabaseSetupMode === 'existing'
+                                ? 'bg-gray-900 text-white border-gray-900'
+                                : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                            }`}
+                          >
+                            Existing project
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setSupabaseSetupMode('create')}
+                            className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${
+                              supabaseSetupMode === 'create'
+                                ? 'bg-gray-900 text-white border-gray-900'
+                                : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                            }`}
+                          >
+                            Create project
+                          </button>
+                        </div>
+
+                        {supabaseSetupMode === 'existing' ? (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                Project ref
+                              </label>
+                              <input
+                                value={supabaseSetupProjectRef}
+                                onChange={(e) => setSupabaseSetupProjectRef(e.target.value)}
+                                className="w-full bg-white border border-gray-200 rounded-xl p-2.5 text-sm font-medium text-gray-700 focus:ring-2 focus:ring-black/5 focus:border-black focus:outline-none transition-all"
+                                placeholder="xxxx"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                DB password
+                              </label>
+                              <input
+                                type="password"
+                                value={supabaseSetupDbPassword}
+                                onChange={(e) => setSupabaseSetupDbPassword(e.target.value)}
+                                className="w-full bg-white border border-gray-200 rounded-xl p-2.5 text-sm font-medium text-gray-700 focus:ring-2 focus:ring-black/5 focus:border-black focus:outline-none transition-all"
+                                placeholder="••••••••••••"
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div className="sm:col-span-2">
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                Project name (optional)
+                              </label>
+                              <input
+                                value={supabaseSetupProjectName}
+                                onChange={(e) => setSupabaseSetupProjectName(e.target.value)}
+                                className="w-full bg-white border border-gray-200 rounded-xl p-2.5 text-sm font-medium text-gray-700 focus:ring-2 focus:ring-black/5 focus:border-black focus:outline-none transition-all"
+                                placeholder={`openbento-analytics-${new Date().getFullYear()}`}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                Region
+                              </label>
+                              <input
+                                value={supabaseSetupRegion}
+                                onChange={(e) => setSupabaseSetupRegion(e.target.value)}
+                                className="w-full bg-white border border-gray-200 rounded-xl p-2.5 text-sm font-medium text-gray-700 focus:ring-2 focus:ring-black/5 focus:border-black focus:outline-none transition-all"
+                                placeholder="eu-west-1"
+                              />
+                            </div>
+                            <div className="sm:col-span-3">
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                DB password (optional)
+                              </label>
+                              <input
+                                type="password"
+                                value={supabaseSetupDbPassword}
+                                onChange={(e) => setSupabaseSetupDbPassword(e.target.value)}
+                                className="w-full bg-white border border-gray-200 rounded-xl p-2.5 text-sm font-medium text-gray-700 focus:ring-2 focus:ring-black/5 focus:border-black focus:outline-none transition-all"
+                                placeholder="Leave empty to auto-generate"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={runSupabaseSetup}
+                            disabled={supabaseSetupRunning}
+                            className="px-3 py-2 rounded-xl bg-gray-900 text-white text-xs font-bold hover:bg-black disabled:opacity-60 disabled:cursor-not-allowed"
+                          >
+                            {supabaseSetupRunning ? 'Running…' : 'Setup & verify'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={checkSupabaseStatus}
+                            disabled={supabaseSetupRunning}
+                            className="px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed"
+                          >
+                            Check status
+                          </button>
+                          <span className="text-[11px] text-gray-400">
+                            Uses Supabase CLI locally (requires <code>supabase login</code>).
+                          </span>
+                        </div>
+
+                        {supabaseSetupError && (
+                          <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-xs text-red-700 font-semibold">
+                            {supabaseSetupError}
+                          </div>
+                        )}
+
+                        {supabaseSetupResult?.generatedDbPassword && (
+                          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900">
+                            <p className="font-bold">Generated DB password (save it):</p>
+                            <p className="font-mono break-all mt-1">{supabaseSetupResult.generatedDbPassword}</p>
+                          </div>
+                        )}
+
+                        {supabaseSetupResult?.checks && (
+                          <div className="bg-white border border-gray-200 rounded-xl p-3">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Status</p>
+                            <div className="space-y-1.5 text-xs">
+                              {Object.entries(supabaseSetupResult.checks as Record<string, any>).map(([key, value]) => (
+                                <div key={key} className="flex items-center justify-between gap-3">
+                                  <span className="font-mono text-gray-600">{key}</span>
+                                  <span className={`font-bold ${(value as any)?.ok ? 'text-green-700' : 'text-red-700'}`}>
+                                    {(value as any)?.ok ? 'OK' : 'FAIL'}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="md:col-span-2 bg-gray-50 border border-gray-100 rounded-xl p-3 space-y-3">
                       <div className="flex items-center justify-between gap-3">
                         <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Admin Token</label>
                         <button
@@ -1164,7 +1401,7 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                         value={analyticsAdminToken}
                         onChange={(e) => setAnalyticsAdminToken(e.target.value)}
                         placeholder="OPENBENTO_ANALYTICS_ADMIN_TOKEN"
-                        className="w-full bg-white border border-gray-200 rounded-xl p-3.5 focus:ring-2 focus:ring-black/5 focus:border-black focus:outline-none transition-all font-medium text-gray-700"
+                        className="w-full bg-white border border-gray-200 rounded-xl p-2.5 focus:ring-2 focus:ring-black/5 focus:border-black focus:outline-none transition-all font-medium text-gray-700"
                       />
                       <div className="flex items-center gap-3">
                         <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Range</label>
@@ -1189,7 +1426,7 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                       </p>
                     </div>
 
-                    <div className="bg-white border border-gray-100 rounded-2xl p-4">
+                    <div className="bg-white border border-gray-100 rounded-xl p-3">
                       <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Totals</p>
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
@@ -1205,14 +1442,14 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                   </div>
 
                   {analyticsError && (
-                    <div className="bg-red-50 border border-red-100 rounded-2xl p-4 text-sm text-red-700 font-semibold">
+                    <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-sm text-red-700 font-semibold">
                       {analyticsError}
                     </div>
                   )}
 
                   {analyticsData && !analyticsError && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      <div className="bg-white border border-gray-100 rounded-2xl p-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <div className="bg-white border border-gray-100 rounded-xl p-3">
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Top destinations</p>
                         <div className="space-y-2">
                           {(analyticsData.topDestinations || []).length === 0 ? (
@@ -1228,7 +1465,7 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                         </div>
                       </div>
 
-                      <div className="bg-white border border-gray-100 rounded-2xl p-4">
+                      <div className="bg-white border border-gray-100 rounded-xl p-3">
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Top referrers</p>
                         <div className="space-y-2">
                           {(analyticsData.topReferrers || []).length === 0 ? (
@@ -1247,8 +1484,8 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                   )}
                 </div>
 
-                <div className="p-8 pt-6 border-t border-gray-100">
-                    <button onClick={() => setShowAnalyticsModal(false)} className="w-full py-4 bg-gray-900 text-white rounded-2xl font-bold hover:bg-black transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                <div className="p-6 pt-4 border-t border-gray-100">
+                    <button onClick={() => setShowAnalyticsModal(false)} className="w-full py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition-colors">
                         Close
                     </button>
                 </div>
