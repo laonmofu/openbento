@@ -1387,11 +1387,22 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                                               </div>
                                             )}
                                         </div>
-                                        <div className="p-4 grid grid-cols-1 gap-4">
-                                            {sortedMobileBlocks.map(block => (
-                                                <div className="pointer-events-none transform scale-100 origin-top" key={block.id}>
-                                                    <Block 
-                                                        block={{...block, colSpan: 1, rowSpan: 1}} 
+                                        <div className="p-3 grid grid-cols-3 gap-2" style={{ gridAutoRows: '80px' }}>
+                                            {sortedMobileBlocks.map(block => {
+                                                // Scale down colSpan/rowSpan for mobile (9-col → 3-col)
+                                                const mobileColSpan = Math.max(1, Math.min(3, Math.ceil(block.colSpan / 3)));
+                                                const mobileRowSpan = Math.max(1, Math.min(3, block.rowSpan));
+                                                return (
+                                                  <div
+                                                    key={block.id}
+                                                    className="pointer-events-none"
+                                                    style={{
+                                                      gridColumn: `span ${mobileColSpan}`,
+                                                      gridRow: `span ${mobileRowSpan}`,
+                                                    }}
+                                                  >
+                                                    <Block
+                                                        block={{...block, colSpan: mobileColSpan, rowSpan: mobileRowSpan}}
                                                         isSelected={false}
                                                         onEdit={() => {}}
                                                         onDelete={() => {}}
@@ -1400,8 +1411,9 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                                                         onDragEnd={() => {}}
                                                         onDrop={() => {}}
                                                     />
-                                                </div>
-                                            ))}
+                                                  </div>
+                                                );
+                                            })}
                                         </div>
                                      </div>
                                 </div>
