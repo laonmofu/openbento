@@ -561,9 +561,9 @@ const Block: React.FC<BlockProps> = ({
       </div>
       {resizeHandle}
 
-      {/* Overlay for image backgrounds */}
-      {(isRichYoutube || isLinkWithImage) && (
-         <div className="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors duration-300 z-0" />
+      {/* Gradient overlay for image backgrounds - only when there's text */}
+      {(isRichYoutube || isLinkWithImage) && (block.title || block.subtext || block.channelTitle) && (
+         <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/70 via-black/30 to-transparent z-0 pointer-events-none" />
       )}
 
       <div className="w-full h-full pointer-events-none relative z-10">
@@ -632,9 +632,9 @@ const Block: React.FC<BlockProps> = ({
 
             {/* Bottom: Info */}
             <div className="mt-auto">
-              <div className="bg-black/40 -mx-6 -mb-6 p-5 backdrop-blur-sm">
-                <h3 className="font-bold text-white text-lg leading-tight">{block.channelTitle || block.title}</h3>
-                {block.subtext && <p className="text-white/70 text-sm mt-1 font-medium">{block.subtext}</p>}
+              <div className="-mx-6 -mb-6 p-5">
+                <h3 className="font-bold text-white text-lg leading-tight drop-shadow-lg">{block.channelTitle || block.title}</h3>
+                {block.subtext && <p className="text-white/80 text-sm mt-1 font-medium drop-shadow">{block.subtext}</p>}
               </div>
             </div>
           </div>
@@ -661,7 +661,7 @@ const Block: React.FC<BlockProps> = ({
                )}
             </div>
 
-            <div className={`${block.type === BlockType.TEXT ? 'flex flex-col justify-center h-full' : 'mt-auto'} ${isLinkWithImage ? 'bg-black/40 -mx-6 -mb-6 p-5 backdrop-blur-sm' : ''}`}>
+            <div className={`${block.type === BlockType.TEXT ? 'flex flex-col justify-center h-full' : 'mt-auto'}`}>
               {/* Editable Title */}
               <div className="group/title relative">
                 {isEditingTitle ? (
@@ -678,7 +678,7 @@ const Block: React.FC<BlockProps> = ({
                   />
                 ) : (
                   <h3
-                    className={`font-bold leading-tight tracking-tight cursor-text ${block.type === BlockType.TEXT ? 'text-2xl mb-2' : 'text-lg'} ${isLinkWithImage ? 'text-white' : ''}`}
+                    className={`font-bold leading-tight tracking-tight cursor-text ${block.type === BlockType.TEXT ? 'text-2xl mb-2' : 'text-lg'} ${isLinkWithImage ? 'text-white drop-shadow-lg' : ''}`}
                     onClick={(e) => {
                       if (onInlineUpdate) {
                         e.stopPropagation();
@@ -711,7 +711,7 @@ const Block: React.FC<BlockProps> = ({
                 ) : (
                   (block.subtext || onInlineUpdate) && (
                     <p
-                      className={`text-sm mt-1 font-medium cursor-text ${isLinkWithImage ? 'text-white/70' : 'opacity-60'}`}
+                      className={`text-sm mt-1 font-medium cursor-text ${isLinkWithImage ? 'text-white/80 drop-shadow' : 'opacity-60'}`}
                       onClick={(e) => {
                         if (onInlineUpdate) {
                           e.stopPropagation();
