@@ -268,7 +268,9 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
   };
 
   return (
-    <div
+    <aside
+      role="complementary"
+      aria-label="Block editor sidebar"
       className={`fixed right-0 top-0 h-screen w-full md:w-[400px] bg-white z-50 shadow-xl transform transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] flex flex-col border-l border-gray-200
 	        ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
     >
@@ -937,7 +939,7 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
           </p>
         </div>
       )}
-    </div>
+    </aside>
   );
 };
 

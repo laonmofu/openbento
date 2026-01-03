@@ -1856,6 +1856,8 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                     return (
                       <motion.main
                         ref={gridRef as any}
+                        role="main"
+                        aria-label="Bento grid editor"
                         layout
                         className="grid gap-2"
                         style={{
@@ -1893,6 +1895,9 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                         {emptyCells.map(({ col, row }) => (
                           <motion.div
                             key={`empty-${col}-${row}`}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`Add block at column ${col}, row ${row}`}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             style={{
@@ -1906,7 +1911,13 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                               handleDropOnCell(col, row);
                             }}
                             onClick={() => handleClickEmptyCell(col, row)}
-                            className={`border border-dashed rounded-md flex items-center justify-center transition-all duration-200 group cursor-pointer ${
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                handleClickEmptyCell(col, row);
+                              }
+                            }}
+                            className={`border border-dashed rounded-md flex items-center justify-center transition-all duration-200 group cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                               draggedBlockId
                                 ? dragOverSlotIndex === col * 100 + row
                                   ? 'border-violet-500 bg-violet-100 scale-[1.02]'
@@ -1935,12 +1946,13 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                         {/* Add more rows button - spans full width at bottom */}
                         <motion.button
                           type="button"
+                          aria-label="Add more rows to grid"
                           onClick={() => setExtraRows((prev) => prev + 3)}
                           style={{
                             gridColumn: '1 / -1',
                             gridRow: displayRows + 1,
                           }}
-                          className="h-12 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center gap-2 text-gray-400 hover:border-violet-400 hover:text-violet-500 hover:bg-violet-50/50 transition-all group"
+                          className="h-12 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center gap-2 text-gray-400 hover:border-violet-400 hover:text-violet-500 hover:bg-violet-50/50 transition-all group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                           whileHover={{ scale: 1.01 }}
                           whileTap={{ scale: 0.99 }}
                         >
