@@ -6,6 +6,7 @@ import ProfileDropdown from './ProfileDropdown';
 import SettingsModal from './SettingsModal';
 import ImageCropModal from './ImageCropModal';
 import { useHistory } from '../hooks/useHistory';
+import { useSaveStatus } from '../hooks/useSaveStatus';
 import AvatarStyleModal from './AvatarStyleModal';
 import AIGeneratorModal from './AIGeneratorModal';
 import { exportSite, type ExportDeploymentTarget } from '../services/export';
@@ -42,6 +43,8 @@ import {
   Pencil,
   Palette,
   Sparkles,
+  Save,
+  AlertCircle,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -437,7 +440,14 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
   const [dragOverSlotIndex, setDragOverSlotIndex] = useState<number | null>(null);
   const [resizingBlockId, setResizingBlockId] = useState<string | null>(null);
   const [extraRows, setExtraRows] = useState(0); // Extra rows added by user
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const {
+    status: saveStatus,
+    lastSavedAt,
+    timeAgo,
+    setSaving,
+    setSaved,
+    setError,
+  } = useSaveStatus();
 
   const gridRef = useRef<HTMLElement | null>(null);
   // Store the offset from mouse to block's top-left corner when dragging
@@ -499,23 +509,44 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
     (newProfile: UserProfile, newBlocks: BlockData[]) => {
       if (!activeBento) return;
 
-      setSaveStatus('saving');
+      setSaving();
 
-      // Save immediately
-      updateBentoData(activeBento.id, {
-        profile: newProfile,
-        blocks: newBlocks,
-        gridVersion,
-      });
+      try {
+        // Save immediately
+        updateBentoData(activeBento.id, {
+          profile: newProfile,
+          blocks: newBlocks,
+          gridVersion,
+        });
 
-      // Show "saved" status briefly
-      setTimeout(() => {
-        setSaveStatus('saved');
-        setTimeout(() => setSaveStatus('idle'), 1500);
-      }, 300);
+        // Show "saved" status briefly
+        setTimeout(() => {
+          setSaved();
+        }, 300);
+      } catch {
+        setError();
+      }
     },
-    [activeBento, gridVersion]
+    [activeBento, gridVersion, setSaving, setSaved, setError]
   );
+
+  // Manual save function for button and keyboard shortcut
+  const handleManualSave = useCallback(() => {
+    if (!activeBento || !profile) return;
+    autoSave(profile, blocks);
+  }, [activeBento, profile, blocks, autoSave]);
+
+  // Keyboard shortcut: Ctrl/Cmd + S to save
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        handleManualSave();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleManualSave]);
 
   // Handle profile changes with auto-save
   const handleSetProfile = useCallback(
@@ -1399,6 +1430,42 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                 />
               )}
               <div className="h-6 w-px bg-gray-200 mx-1"></div>
+              {/* Save Button with Status */}
+              <button
+                type="button"
+                aria-label="Save (Ctrl+S)"
+                onClick={handleManualSave}
+                disabled={saveStatus === 'saving'}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-100 disabled:opacity-50"
+                title="Save (Ctrl+S)"
+              >
+                {saveStatus === 'saving' ? (
+                  <>
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                      className="w-4 h-4 border-2 border-violet-500 border-t-transparent rounded-full"
+                    />
+                    <span className="text-gray-600">Saving...</span>
+                  </>
+                ) : saveStatus === 'saved' ? (
+                  <>
+                    <Check size={16} className="text-green-500" />
+                    <span className="text-green-600">Saved!</span>
+                  </>
+                ) : saveStatus === 'error' ? (
+                  <>
+                    <AlertCircle size={16} className="text-red-500" />
+                    <span className="text-red-600">Error</span>
+                  </>
+                ) : (
+                  <>
+                    <Save size={16} className="text-gray-500" />
+                    <span className="text-gray-500">{lastSavedAt ? timeAgo : 'Not saved'}</span>
+                  </>
+                )}
+              </button>
+              <div className="h-6 w-px bg-gray-200 mx-1"></div>
               <div className="flex bg-gray-100/80 p-1 rounded-xl gap-0.5">
                 <button
                   type="button"
@@ -2136,40 +2203,6 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
           </footer>
         )}
       </div>
-
-      {/* SAVE STATUS INDICATOR */}
-      <AnimatePresence>
-        {saveStatus !== 'idle' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.9 }}
-            className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 bg-white rounded-full shadow-lg border border-gray-100"
-          >
-            {saveStatus === 'saving' ? (
-              <>
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                  className="w-4 h-4 border-2 border-violet-500 border-t-transparent rounded-full"
-                />
-                <span className="text-sm font-medium text-gray-600">Saving...</span>
-              </>
-            ) : (
-              <>
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center"
-                >
-                  <Check size={10} className="text-white" />
-                </motion.div>
-                <span className="text-sm font-medium text-gray-600">Saved</span>
-              </>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* 2. SIDEBAR EDITOR */}
       <EditorSidebar
