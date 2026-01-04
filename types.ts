@@ -88,6 +88,16 @@ export interface AvatarStyle {
   borderWidth?: number; // border width in pixels (default: 3)
 }
 
+// OpenGraph meta tags for social sharing
+export interface OpenGraphData {
+  title?: string; // Title for social previews (defaults to profile name)
+  description?: string; // Description (max 200 chars recommended)
+  image?: string; // Image URL (1200x630px recommended)
+  siteName?: string; // Site name
+  twitterHandle?: string; // Twitter/X handle (without @)
+  twitterCardType?: 'summary' | 'summary_large_image'; // Twitter card type
+}
+
 export interface UserProfile {
   name: string;
   bio: string;
@@ -109,6 +119,8 @@ export interface UserProfile {
   };
   // Centralized social accounts configuration
   socialAccounts?: SocialAccount[];
+  // OpenGraph meta tags for social sharing
+  openGraph?: OpenGraphData;
 }
 
 export interface SiteData {

@@ -14,6 +14,7 @@ import {
   AlertCircle,
   Loader2,
   Database,
+  Globe,
 } from 'lucide-react';
 import type { SocialPlatform, UserProfile, BlockData } from '../types';
 import { AVATAR_PLACEHOLDER } from '../constants';
@@ -37,7 +38,7 @@ type SettingsModalProps = {
   onBlocksChange?: (blocks: BlockData[]) => void;
 };
 
-type TabType = 'general' | 'social' | 'analytics' | 'json';
+type TabType = 'general' | 'social' | 'seo' | 'analytics' | 'json';
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
@@ -256,6 +257,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
     { id: 'general', label: 'General', icon: <User size={16} /> },
     { id: 'social', label: 'Social', icon: <Share2 size={16} /> },
+    { id: 'seo', label: 'SEO & Social Sharing', icon: <Globe size={16} /> },
     { id: 'analytics', label: 'Analytics', icon: <BarChart3 size={16} /> },
     { id: 'json', label: 'Raw JSON', icon: <Code size={16} /> },
   ];
@@ -898,6 +900,233 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                         </div>
                       </div>
                     )}
+                  </div>
+                </section>
+              )}
+
+              {/* SEO TAB */}
+              {activeTab === 'seo' && (
+                <section className="space-y-6">
+                  <div>
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+                      OpenGraph & Social Sharing
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-4">
+                      Configure how your page appears when shared on social media platforms.
+                    </p>
+                  </div>
+
+                  {/* OG Title */}
+                  <div className="space-y-2">
+                    <label htmlFor="og-title" className="block text-sm font-medium text-gray-700">
+                      Title
+                    </label>
+                    <input
+                      id="og-title"
+                      type="text"
+                      value={profile.openGraph?.title || ''}
+                      onChange={(e) =>
+                        setProfile({
+                          ...profile,
+                          openGraph: { ...profile.openGraph, title: e.target.value },
+                        })
+                      }
+                      placeholder={profile.name || 'Your page title'}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <p className="text-xs text-gray-400">Leave empty to use your profile name</p>
+                  </div>
+
+                  {/* OG Description */}
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="og-description"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Description
+                    </label>
+                    <textarea
+                      id="og-description"
+                      value={profile.openGraph?.description || ''}
+                      onChange={(e) => {
+                        const value = e.target.value.slice(0, 200);
+                        setProfile({
+                          ...profile,
+                          openGraph: { ...profile.openGraph, description: value },
+                        });
+                      }}
+                      placeholder="A brief description of your page..."
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    />
+                    <p className="text-xs text-gray-400">
+                      {profile.openGraph?.description?.length || 0}/200 characters
+                    </p>
+                  </div>
+
+                  {/* OG Image */}
+                  <div className="space-y-2">
+                    <label htmlFor="og-image" className="block text-sm font-medium text-gray-700">
+                      Image URL
+                    </label>
+                    <input
+                      id="og-image"
+                      type="url"
+                      value={profile.openGraph?.image || ''}
+                      onChange={(e) =>
+                        setProfile({
+                          ...profile,
+                          openGraph: { ...profile.openGraph, image: e.target.value },
+                        })
+                      }
+                      placeholder="https://example.com/image.png"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <p className="text-xs text-gray-400">Recommended size: 1200x630 pixels</p>
+                    {profile.openGraph?.image && (
+                      <div className="mt-2 p-2 bg-gray-50 rounded-lg">
+                        <img
+                          src={profile.openGraph.image}
+                          alt="OG Preview"
+                          className="w-full max-w-xs h-auto rounded border border-gray-200"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Site Name */}
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="og-site-name"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Site Name
+                    </label>
+                    <input
+                      id="og-site-name"
+                      type="text"
+                      value={profile.openGraph?.siteName || ''}
+                      onChange={(e) =>
+                        setProfile({
+                          ...profile,
+                          openGraph: { ...profile.openGraph, siteName: e.target.value },
+                        })
+                      }
+                      placeholder="My Bento"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* Twitter Section */}
+                  <div className="pt-4 border-t border-gray-100">
+                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+                      Twitter / X
+                    </h4>
+
+                    {/* Twitter Handle */}
+                    <div className="space-y-2 mb-4">
+                      <label
+                        htmlFor="twitter-handle"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Twitter Handle
+                      </label>
+                      <div className="flex">
+                        <span className="inline-flex items-center px-3 border border-r-0 border-gray-200 rounded-l-lg bg-gray-50 text-gray-500 text-sm">
+                          @
+                        </span>
+                        <input
+                          id="twitter-handle"
+                          type="text"
+                          value={profile.openGraph?.twitterHandle || ''}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/^@/, '');
+                            setProfile({
+                              ...profile,
+                              openGraph: { ...profile.openGraph, twitterHandle: value },
+                            });
+                          }}
+                          placeholder="username"
+                          className="flex-1 px-3 py-2 border border-gray-200 rounded-r-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Twitter Card Type */}
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="twitter-card-type"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Card Type
+                      </label>
+                      <select
+                        id="twitter-card-type"
+                        value={profile.openGraph?.twitterCardType || 'summary_large_image'}
+                        onChange={(e) =>
+                          setProfile({
+                            ...profile,
+                            openGraph: {
+                              ...profile.openGraph,
+                              twitterCardType: e.target.value as 'summary' | 'summary_large_image',
+                            },
+                          })
+                        }
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      >
+                        <option value="summary_large_image">Large Image Card</option>
+                        <option value="summary">Summary Card</option>
+                      </select>
+                      <p className="text-xs text-gray-400">
+                        Large image cards show a bigger preview image
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Live Preview */}
+                  <div className="pt-4 border-t border-gray-100">
+                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+                      Preview
+                    </h4>
+                    <p className="text-sm text-gray-500 mb-4">
+                      How your link will appear when shared on social media
+                    </p>
+                    <div className="border border-gray-200 rounded-xl overflow-hidden bg-white max-w-md">
+                      {/* Image Preview */}
+                      <div
+                        className="w-full bg-gray-100 flex items-center justify-center"
+                        style={{ aspectRatio: '1200/630' }}
+                      >
+                        {profile.openGraph?.image ? (
+                          <img
+                            src={profile.openGraph.image}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <div className="text-gray-400 text-sm">No image set</div>
+                        )}
+                      </div>
+                      {/* Content Preview */}
+                      <div className="p-3">
+                        <p className="text-xs text-gray-500 mb-1">
+                          {profile.openGraph?.siteName || 'yourdomain.com'}
+                        </p>
+                        <p className="font-semibold text-gray-900 text-sm leading-tight mb-1 line-clamp-1">
+                          {profile.openGraph?.title || profile.name || 'Page Title'}
+                        </p>
+                        <p className="text-xs text-gray-500 line-clamp-2">
+                          {profile.openGraph?.description ||
+                            'Your page description will appear here...'}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </section>
               )}
