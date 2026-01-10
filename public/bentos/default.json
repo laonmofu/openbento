@@ -5,7 +5,7 @@
   "profile": {
     "name": "My Bento",
     "bio": "Digital creator & developer.\nBuilding awesome things.",
-    "avatarUrl": "",
+    "avatarUrl": "/images/avatar.png",
     "theme": "light",
     "primaryColor": "blue",
     "showBranding": true,
