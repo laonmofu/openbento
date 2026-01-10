@@ -77,7 +77,8 @@ export const saveBento = (bento: SavedBento): void => {
 
 // Create a new bento from JSON template
 export const createBentoFromJSON = async (
-  templatePath: string = '/bentos/default.json'
+  templatePath: string = '/bentos/default.json',
+  preserveIds: boolean = false
 ): Promise<SavedBento> => {
   try {
     const response = await fetch(templatePath);
@@ -87,7 +88,7 @@ export const createBentoFromJSON = async (
     const now = Date.now();
 
     const newBento: SavedBento = {
-      id: generateId(),
+      id: preserveIds && template.id ? template.id : generateId(),
       name: template.name || 'My Bento',
       createdAt: now,
       updatedAt: now,
@@ -99,7 +100,7 @@ export const createBentoFromJSON = async (
         },
         blocks: template.blocks.map((b) => ({
           ...b,
-          id: generateId(), // Generate new IDs to avoid conflicts
+          id: preserveIds && b.id ? b.id : generateId(), // Generate new IDs to avoid conflicts -> unless preserving
         })),
       },
     };
@@ -231,6 +232,9 @@ export const getOrCreateActiveBento = (): SavedBento => {
 
 // Initialize app - call this on first load to load from template
 export const initializeApp = async (): Promise<SavedBento> => {
+  // Attempt to sync with file edits (for dev workflow)
+  await syncWithDefaultJson();
+
   const activeId = getActiveBentoId();
 
   if (activeId) {
@@ -246,6 +250,52 @@ export const initializeApp = async (): Promise<SavedBento> => {
 
   // First time: load from default template
   return createBentoFromJSON('/bentos/default.json');
+};
+
+/**
+ * Validates and possibly syncs the active bento with default.json if the file is newer.
+ * This handles the case where the user edits default.json manually and wants to see changes in Builder.
+ */
+export const syncWithDefaultJson = async (): Promise<SavedBento | null> => {
+  try {
+    const response = await fetch('/bentos/default.json');
+    if (!response.ok) return null;
+
+    const fileJson: BentoJSON = await response.json();
+    if (!fileJson.exportedAt) return null;
+
+    const bentos = getAllBentos();
+    // Find matching bento by ID
+    const matchIndex = bentos.findIndex((b) => b.id === fileJson.id);
+
+    if (matchIndex >= 0) {
+      const local = bentos[matchIndex];
+      // If file is newer than local update (with a small buffer for export delay)
+      if (fileJson.exportedAt > local.updatedAt) {
+        console.log('Syncing from default.json: File is newer');
+        const imported = importBentoFromJSON(fileJson); // This usually generates new ID, need to handle ID preservation
+        // Manually fix ID since importBentoFromJSON always gens new ID
+        imported.id = fileJson.id;
+        imported.data.blocks = fileJson.blocks; // Blocks have IDs too
+
+        bentos[matchIndex] = imported;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(bentos));
+        return imported;
+      }
+    } else {
+      // ID from file not found locally. If it looks like a valid bento, maybe import it?
+      // For now, let's treat it as a new import if the user doesn't have any bentos?
+      // Or just check active ID?
+      if (bentos.length === 0) {
+        // Create preserving ID
+        const newBento = await createBentoFromJSON('/bentos/default.json', true);
+        return newBento;
+      }
+    }
+  } catch (e) {
+    console.error('Sync failed:', e);
+  }
+  return null;
 };
 
 // Update just the data of a bento (for auto-save)
@@ -314,14 +364,12 @@ export const importBentoFromJSON = (json: BentoJSON): SavedBento => {
     data: {
       gridVersion: json.gridVersion ?? GRID_VERSION,
       profile: {
+        ...json.profile,
         name: json.profile?.name || 'My Bento',
         bio: json.profile?.bio || '',
         avatarUrl: json.profile?.avatarUrl || AVATAR_PLACEHOLDER,
-        theme: json.profile?.theme || 'light',
-        primaryColor: json.profile?.primaryColor || 'blue',
-        showBranding: json.profile?.showBranding ?? true,
-        analytics: json.profile?.analytics || { enabled: false, supabaseUrl: '' },
         socialAccounts: json.profile?.socialAccounts || [],
+        analytics: json.profile?.analytics || { enabled: false, supabaseUrl: '' },
       },
       blocks: (json.blocks || []).map((b) => ({
         ...b,
