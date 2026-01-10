@@ -108,6 +108,7 @@ export interface UserProfile {
   showBranding?: boolean;
   showSocialInHeader?: boolean; // Show social icons row under name/bio
   showFollowerCount?: boolean; // Show follower count next to social icons
+  disableTilt?: boolean; // Disable the Apple TV style 3D tilt effect on blocks
   // Background customization
   backgroundColor?: string; // CSS color value (hex, rgb, etc.)
   backgroundImage?: string; // URL or data URL for background image

@@ -199,7 +199,7 @@ const PreviewPage: React.FC = () => {
                   onDragEnter={() => { }}
                   onDragEnd={() => { }}
                   onDrop={() => { }}
-                  enableTiltEffect={true}
+                  enableTiltEffect={!profile.disableTilt}
                   previewMode={true}
                 />
               ))}
@@ -297,7 +297,7 @@ const PreviewPage: React.FC = () => {
                       onDragEnter={() => { }}
                       onDragEnd={() => { }}
                       onDrop={() => { }}
-                      enableTiltEffect={true}
+                      enableTiltEffect={!profile.disableTilt}
                       previewMode={true}
                     />
                   </div>

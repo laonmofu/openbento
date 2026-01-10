@@ -101,7 +101,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             }
           }
         })
-        .catch(() => {});
+        .catch(() => { });
     }
   }, [isOpen, activeTab, profile, setProfile]);
 
@@ -310,11 +310,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   aria-selected={activeTab === tab.id}
                   aria-controls={`${tab.id}-panel`}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-t-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                    activeTab === tab.id
+                  className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-t-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${activeTab === tab.id
                       ? 'bg-gray-100 text-gray-900 border-b-2 border-gray-900 -mb-[2px]'
                       : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   {tab.icon}
                   {tab.label}
@@ -460,16 +459,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                             showBranding: !(profile.showBranding !== false),
                           })
                         }
-                        className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
-                          profile.showBranding !== false ? 'bg-gray-900' : 'bg-gray-200'
-                        }`}
+                        className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${profile.showBranding !== false ? 'bg-gray-900' : 'bg-gray-200'
+                          }`}
                         aria-pressed={profile.showBranding !== false}
                         aria-label="Toggle OpenBento branding"
                       >
                         <span
-                          className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                            profile.showBranding !== false ? 'translate-x-6' : 'translate-x-1'
-                          }`}
+                          className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${profile.showBranding !== false ? 'translate-x-6' : 'translate-x-1'
+                            }`}
                         />
                       </button>
                     </div>
@@ -492,16 +489,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                             showSocialInHeader: !profile.showSocialInHeader,
                           })
                         }
-                        className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
-                          profile.showSocialInHeader ? 'bg-gray-900' : 'bg-gray-200'
-                        }`}
+                        className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${profile.showSocialInHeader ? 'bg-gray-900' : 'bg-gray-200'
+                          }`}
                         aria-pressed={profile.showSocialInHeader}
                         aria-label="Toggle social icons in header"
                       >
                         <span
-                          className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                            profile.showSocialInHeader ? 'translate-x-6' : 'translate-x-1'
-                          }`}
+                          className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${profile.showSocialInHeader ? 'translate-x-6' : 'translate-x-1'
+                            }`}
                         />
                       </button>
                     </div>
@@ -523,20 +518,51 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                               showFollowerCount: !profile.showFollowerCount,
                             })
                           }
-                          className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
-                            profile.showFollowerCount ? 'bg-gray-900' : 'bg-gray-200'
-                          }`}
+                          className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${profile.showFollowerCount ? 'bg-gray-900' : 'bg-gray-200'
+                            }`}
                           aria-pressed={profile.showFollowerCount}
                           aria-label="Toggle follower count"
                         >
                           <span
-                            className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                              profile.showFollowerCount ? 'translate-x-6' : 'translate-x-1'
-                            }`}
+                            className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${profile.showFollowerCount ? 'translate-x-6' : 'translate-x-1'
+                              }`}
                           />
                         </button>
                       </div>
                     )}
+                  </section>
+
+                  {/* Effects */}
+                  <section className="space-y-3">
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                      Effects
+                    </h3>
+                    <div className="flex items-center justify-between gap-4 p-3 bg-white border border-gray-200 rounded-xl">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-gray-900">3D Tilt Effect</p>
+                        <p className="text-xs text-gray-400">
+                          Enable the interactive 3D tilt effect when hovering blocks.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setProfile({
+                            ...profile,
+                            disableTilt: !profile.disableTilt,
+                          })
+                        }
+                        className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${!profile.disableTilt ? 'bg-gray-900' : 'bg-gray-200'
+                          }`}
+                        aria-pressed={!profile.disableTilt}
+                        aria-label="Toggle 3D tilt effect"
+                      >
+                        <span
+                          className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${!profile.disableTilt ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                        />
+                      </button>
+                    </div>
                   </section>
 
                   {/* Background Section */}
@@ -634,11 +660,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                                 backgroundImage: undefined,
                               })
                             }
-                            className={`w-7 h-7 rounded-lg border-2 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${
-                              profile.backgroundColor === color && !profile.backgroundImage
+                            className={`w-7 h-7 rounded-lg border-2 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${profile.backgroundColor === color && !profile.backgroundImage
                                 ? 'border-violet-500 scale-110 shadow-md'
                                 : 'border-gray-200 hover:border-gray-400'
-                            }`}
+                              }`}
                             style={{ backgroundColor: color }}
                             title={color}
                           />

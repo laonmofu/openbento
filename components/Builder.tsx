@@ -209,12 +209,12 @@ const ensureBlocksHavePositions = (blocks: BlockData[]) => {
 
     const nextBlock = changed
       ? {
-          ...block,
-          gridColumn: nextGridColumn,
-          gridRow: nextGridRow,
-          colSpan: nextColSpan,
-          rowSpan: nextRowSpan,
-        }
+        ...block,
+        gridColumn: nextGridColumn,
+        gridRow: nextGridRow,
+        colSpan: nextColSpan,
+        rowSpan: nextRowSpan,
+      }
       : block;
 
     if (changed) didChange = true;
@@ -1379,11 +1379,11 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
   // Background style from profile settings
   const backgroundStyle: React.CSSProperties = profile.backgroundImage
     ? {
-        backgroundImage: `url(${profile.backgroundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
-      }
+      backgroundImage: `url(${profile.backgroundImage})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundAttachment: 'fixed',
+    }
     : profile.backgroundColor
       ? { backgroundColor: profile.backgroundColor }
       : { backgroundColor: '#f9fafb' }; // default gray-50
@@ -1800,10 +1800,10 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                   // Background style
                   const bgStyle = profile.backgroundImage
                     ? {
-                        backgroundImage: `url('${profile.backgroundImage}')`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                      }
+                      backgroundImage: `url('${profile.backgroundImage}')`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }
                     : { background: profile.backgroundColor || '#f8fafc' };
 
                   return (
@@ -1914,13 +1914,13 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                                   <Block
                                     block={block}
                                     isSelected={false}
-                                    onEdit={() => {}}
-                                    onDelete={() => {}}
-                                    onDragStart={() => {}}
-                                    onDragEnter={() => {}}
-                                    onDragEnd={() => {}}
-                                    onDrop={() => {}}
-                                    enableTiltEffect={true}
+                                    onEdit={() => { }}
+                                    onDelete={() => { }}
+                                    onDragStart={() => { }}
+                                    onDragEnter={() => { }}
+                                    onDragEnd={() => { }}
+                                    onDrop={() => { }}
+                                    enableTiltEffect={!profile.disableTilt}
                                   />
                                 </div>
                               );
@@ -1953,7 +1953,7 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                           let c = block.gridColumn;
                           c <
                           block.gridColumn +
-                            Math.min(block.colSpan, GRID_COLS - block.gridColumn + 1);
+                          Math.min(block.colSpan, GRID_COLS - block.gridColumn + 1);
                           c++
                         ) {
                           for (let r = block.gridRow; r < block.gridRow + block.rowSpan; r++) {
@@ -2098,6 +2098,7 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                                 setEditingBlockId(b.id);
                                 setIsSidebarOpen(true);
                               }}
+                              enableTiltEffect={!profile.disableTilt}
                               onDelete={deleteBlock}
                               onDragStart={handleDragStart}
                               onDragEnter={handleDragEnter}
@@ -2135,13 +2136,12 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                                 handleClickEmptyCell(col, row);
                               }
                             }}
-                            className={`border border-dashed rounded-md flex items-center justify-center transition-all duration-200 group cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                              draggedBlockId
-                                ? dragOverSlotIndex === col * 100 + row
-                                  ? 'border-violet-500 bg-violet-100 scale-[1.02]'
-                                  : 'border-gray-300 bg-gray-50/50 hover:border-violet-400 hover:bg-violet-50'
-                                : 'border-gray-200 bg-gray-50/30 hover:border-gray-300 hover:bg-gray-100/50'
-                            }`}
+                            className={`border border-dashed rounded-md flex items-center justify-center transition-all duration-200 group cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${draggedBlockId
+                              ? dragOverSlotIndex === col * 100 + row
+                                ? 'border-violet-500 bg-violet-100 scale-[1.02]'
+                                : 'border-gray-300 bg-gray-50/50 hover:border-violet-400 hover:bg-violet-50'
+                              : 'border-gray-200 bg-gray-50/30 hover:border-gray-300 hover:bg-gray-100/50'
+                              }`}
                           >
                             {draggedBlockId ? (
                               <Plus
@@ -2452,16 +2452,14 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                           },
                         }))
                       }
-                      className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
-                        profile.analytics?.enabled ? 'bg-gray-900' : 'bg-gray-200'
-                      }`}
+                      className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${profile.analytics?.enabled ? 'bg-gray-900' : 'bg-gray-200'
+                        }`}
                       aria-pressed={!!profile.analytics?.enabled}
                       aria-label="Toggle analytics"
                     >
                       <span
-                        className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                          profile.analytics?.enabled ? 'translate-x-6' : 'translate-x-1'
-                        }`}
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${profile.analytics?.enabled ? 'translate-x-6' : 'translate-x-1'
+                          }`}
                       />
                     </button>
                   </div>
@@ -2505,11 +2503,10 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                           aria-label="Use existing Supabase project"
                           aria-pressed={supabaseSetupMode === 'existing'}
                           onClick={() => setSupabaseSetupMode('existing')}
-                          className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                            supabaseSetupMode === 'existing'
-                              ? 'bg-gray-900 text-white border-gray-900'
-                              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-                          }`}
+                          className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${supabaseSetupMode === 'existing'
+                            ? 'bg-gray-900 text-white border-gray-900'
+                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                            }`}
                         >
                           Existing project
                         </button>
@@ -2518,11 +2515,10 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                           aria-label="Create new Supabase project"
                           aria-pressed={supabaseSetupMode === 'create'}
                           onClick={() => setSupabaseSetupMode('create')}
-                          className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                            supabaseSetupMode === 'create'
-                              ? 'bg-gray-900 text-white border-gray-900'
-                              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-                          }`}
+                          className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${supabaseSetupMode === 'create'
+                            ? 'bg-gray-900 text-white border-gray-900'
+                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                            }`}
                         >
                           Create project
                         </button>

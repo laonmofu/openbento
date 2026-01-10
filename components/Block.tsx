@@ -31,9 +31,9 @@ const useTiltEffect = (isEnabled: boolean = true) => {
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
 
-      // Calculate rotation (max 10 degrees for subtle Apple TV effect)
-      const rotateX = ((y - centerY) / centerY) * -10;
-      const rotateY = ((x - centerX) / centerX) * 10;
+      // Calculate rotation (max 4 degrees for subtle Apple TV effect)
+      const rotateX = ((y - centerY) / centerY) * -4;
+      const rotateY = ((x - centerX) / centerX) * 4;
 
       // Calculate glare position
       const glareX = (x / rect.width) * 100;
@@ -390,9 +390,8 @@ const Block: React.FC<BlockProps> = ({
         type="button"
         aria-label="Resize block"
         data-resize-handle="true"
-        className={`absolute bottom-2 right-2 z-30 transition-opacity pointer-events-auto ${
-          isResizing ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus:opacity-100'
-        } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg`}
+        className={`absolute bottom-2 right-2 z-30 transition-opacity pointer-events-auto ${isResizing ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus:opacity-100'
+          } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg`}
         onPointerDown={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -794,11 +793,11 @@ const Block: React.FC<BlockProps> = ({
   // Tilt wrapper for Apple TV effect
   const tiltWrapperStyle: React.CSSProperties = enableTiltEffect
     ? {
-        ...tiltStyle,
-        width: '100%',
-        height: '100%',
-        transformStyle: 'preserve-3d',
-      }
+      ...tiltStyle,
+      width: '100%',
+      height: '100%',
+      transformStyle: 'preserve-3d',
+    }
     : {};
 
   return (
@@ -1159,11 +1158,10 @@ const Block: React.FC<BlockProps> = ({
 
                   return (
                     <div
-                      className={`w-6 h-6 md:w-7 md:h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                        block.textColor === 'text-white' || isLinkWithImage
+                      className={`w-6 h-6 md:w-7 md:h-7 rounded-lg flex items-center justify-center shrink-0 ${block.textColor === 'text-white' || isLinkWithImage
                           ? 'bg-white/20 text-white backdrop-blur-sm'
                           : 'bg-gray-100'
-                      }`}
+                        }`}
                     >
                       {BrandIcon ? (
                         <span
