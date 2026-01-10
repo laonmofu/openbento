@@ -119,7 +119,7 @@ const Block: React.FC<BlockProps> = ({
     handleMouseMove: onTiltMove,
     handleMouseLeave: onTiltLeave,
     handleMouseEnter: onTiltEnter,
-  } = useTiltEffect(enableTiltEffect);
+  } = useTiltEffect(false);
   const [fetchedVideos, setFetchedVideos] = useState<
     Array<{ id: string; title: string; thumbnail: string }>
   >(block.youtubeVideos || []);
@@ -1159,8 +1159,8 @@ const Block: React.FC<BlockProps> = ({
                   return (
                     <div
                       className={`w-6 h-6 md:w-7 md:h-7 rounded-lg flex items-center justify-center shrink-0 ${block.textColor === 'text-white' || isLinkWithImage
-                          ? 'bg-white/20 text-white backdrop-blur-sm'
-                          : 'bg-gray-100'
+                        ? 'bg-white/20 text-white backdrop-blur-sm'
+                        : 'bg-gray-100'
                         }`}
                     >
                       {BrandIcon ? (

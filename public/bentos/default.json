@@ -44,7 +44,7 @@
       "siteName": "모후모후",
       "twitterHandle": "mofu_wa_neko"
     },
-    "disableTilt": false
+    "disableTilt": true
   },
   "blocks": [
     {
