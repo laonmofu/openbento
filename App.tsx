@@ -6,6 +6,7 @@ import DocsPage from './components/docs/DocsPage';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ENABLE_LANDING = import.meta.env.VITE_ENABLE_LANDING === 'true';
+const ENABLE_PUBLIC_BUILDER = import.meta.env.VITE_ENABLE_PUBLIC_BUILDER === 'true';
 
 // Builder is lazy loaded since it's heavier and not the first view when landing is enabled
 const LazyBuilder = React.lazy(() => import('./components/Builder'));
@@ -74,8 +75,13 @@ function MainApp() {
 function App() {
   const route = getRoute();
 
-  if (route === '/preview') {
+  if (route === '/preview' || route === '/') {
     return <PreviewPage />;
+  }
+
+  // Only allow builder access in development mode or if explicitly enabled
+  if ((import.meta.env.DEV || ENABLE_PUBLIC_BUILDER) && route === '/builder') {
+    return <MainApp />;
   }
 
   if (route === '/analytics') {
@@ -86,7 +92,8 @@ function App() {
     return <DocsPage />;
   }
 
-  return <MainApp />;
+  // Fallback for unknown routes, or maybe redirect to /
+  return <PreviewPage />;
 }
 
 export default App;

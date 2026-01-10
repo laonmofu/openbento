@@ -9,12 +9,41 @@ const PreviewPage: React.FC = () => {
   const [bento, setBento] = useState<SavedBento | null>(null);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const requestedId = params.get('id')?.trim();
-    const requested = requestedId ? getBento(requestedId) : null;
-    const resolved = requested || getOrCreateActiveBento();
-    if (requested) setActiveBentoId(requested.id);
-    setBento(resolved);
+    const loadBento = async () => {
+      // 1. Try to load from default.json (Public Profile Mode)
+      try {
+        const response = await fetch('/bentos/default.json');
+        if (response.ok) {
+          const template = await response.json();
+          // Construct a temporary bento object for display
+          const publicBento: SavedBento = {
+            id: 'public-view',
+            name: template.name || 'My Bento',
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            data: {
+              profile: template.profile,
+              blocks: template.blocks,
+              gridVersion: template.gridVersion,
+            },
+          };
+          setBento(publicBento);
+          return;
+        }
+      } catch (e) {
+        console.warn('Failed to load default.json, falling back to local storage', e);
+      }
+
+      // 2. Fallback: Local Storage (Builder Preview Mode)
+      const params = new URLSearchParams(window.location.search);
+      const requestedId = params.get('id')?.trim();
+      const requested = requestedId ? getBento(requestedId) : null;
+      const resolved = requested || getOrCreateActiveBento();
+      if (requested) setActiveBentoId(requested.id);
+      setBento(resolved);
+    };
+
+    loadBento();
   }, []);
 
   // Avatar style helpers
@@ -93,11 +122,11 @@ const PreviewPage: React.FC = () => {
   // Background style
   const bgStyle: React.CSSProperties = profile.backgroundImage
     ? {
-        backgroundImage: `url('${profile.backgroundImage}')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
-      }
+      backgroundImage: `url('${profile.backgroundImage}')`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundAttachment: 'fixed',
+    }
     : { backgroundColor: profile.backgroundColor || '#f8fafc' };
 
   const avatarStyle = getAvatarStyle(profile.avatarStyle);
@@ -164,12 +193,12 @@ const PreviewPage: React.FC = () => {
                   enableResize={false}
                   isResizing={false}
                   onResizeStart={undefined}
-                  onEdit={() => {}}
-                  onDelete={() => {}}
-                  onDragStart={() => {}}
-                  onDragEnter={() => {}}
-                  onDragEnd={() => {}}
-                  onDrop={() => {}}
+                  onEdit={() => { }}
+                  onDelete={() => { }}
+                  onDragStart={() => { }}
+                  onDragEnter={() => { }}
+                  onDragEnd={() => { }}
+                  onDrop={() => { }}
                   enableTiltEffect={true}
                   previewMode={true}
                 />
@@ -262,12 +291,12 @@ const PreviewPage: React.FC = () => {
                       enableResize={false}
                       isResizing={false}
                       onResizeStart={undefined}
-                      onEdit={() => {}}
-                      onDelete={() => {}}
-                      onDragStart={() => {}}
-                      onDragEnter={() => {}}
-                      onDragEnd={() => {}}
-                      onDrop={() => {}}
+                      onEdit={() => { }}
+                      onDelete={() => { }}
+                      onDragStart={() => { }}
+                      onDragEnter={() => { }}
+                      onDragEnd={() => { }}
+                      onDrop={() => { }}
                       enableTiltEffect={true}
                       previewMode={true}
                     />
