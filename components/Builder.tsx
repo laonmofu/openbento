@@ -504,6 +504,13 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
     loadBento();
   }, [reset]);
 
+  // Update document title based on bento name
+  useEffect(() => {
+    if (activeBento?.name) {
+      document.title = activeBento.name;
+    }
+  }, [activeBento?.name]);
+
   // Auto-save function - immediate save with status indicator
   const autoSave = useCallback(
     (newProfile: UserProfile, newBlocks: BlockData[]) => {

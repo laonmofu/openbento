@@ -46,6 +46,13 @@ const PreviewPage: React.FC = () => {
     loadBento();
   }, []);
 
+  // Update document title based on bento name
+  useEffect(() => {
+    if (bento?.name) {
+      document.title = bento.name;
+    }
+  }, [bento?.name]);
+
   // Avatar style helpers
   const getAvatarStyle = (style?: AvatarStyle): React.CSSProperties => {
     const s = style || {

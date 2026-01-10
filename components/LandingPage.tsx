@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Github,
@@ -106,6 +106,10 @@ const demoBlocks: BlockData[] = [
 ];
 
 const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
+  useEffect(() => {
+    document.title = '모후모후';
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-gray-900 font-sans selection:bg-black selection:text-white overflow-x-hidden">
       {/* Navbar */}
@@ -267,7 +271,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                         key={block.id}
                         block={block}
                         enableTiltEffect={false}
-                        onClickBlock={() => {}}
+                        onClickBlock={() => { }}
                       />
                     ))}
                   </div>
