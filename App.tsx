@@ -76,17 +76,22 @@ function MainApp() {
 function App() {
   const route = getRoute();
 
-  if (route === '/preview' || route === '/') {
-    return <PreviewPage />;
+  // Debug logging (remove after fixing)
+  if (typeof window !== 'undefined' && window.location.pathname.includes('cat')) {
+    console.log('[OpenBento Debug] Route:', route, 'Pathname:', window.location.pathname);
   }
 
-  // Public route: Catalonia page (always accessible in production)
-  if (route === '/cat') {
+  // Check for exact /cat route first
+  if (route === '/cat' || window.location.pathname === '/cat' || window.location.pathname.endsWith('/cat')) {
     return (
       <Suspense fallback={<div className="min-h-screen bg-[#FAFAFA]" />}>
         <CataloniaPage />
       </Suspense>
     );
+  }
+
+  if (route === '/preview' || route === '/') {
+    return <PreviewPage />;
   }
 
   // Only allow builder access in development mode or if explicitly enabled
