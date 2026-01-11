@@ -737,6 +737,7 @@ const openbentoSupabaseDevPlugin = (): Plugin => {
   };
 };
 
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   return {

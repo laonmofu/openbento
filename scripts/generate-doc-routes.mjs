@@ -69,6 +69,14 @@ for (const route of docRoutes) {
   console.log(`  /doc/${route}/index.html`);
 }
 
+// Generate static HTML for /cat
+const catDistDir = path.join(distDir, 'cat');
+if (!fs.existsSync(catDistDir)) {
+  fs.mkdirSync(catDistDir, { recursive: true });
+}
+fs.writeFileSync(path.join(catDistDir, 'index.html'), indexHtml);
+console.log('  /cat/index.html');
+
 // Also create a 404.html that redirects to handle any missed routes
 const notFoundHtml = `<!DOCTYPE html>
 <html>
