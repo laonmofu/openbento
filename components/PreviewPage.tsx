@@ -327,6 +327,15 @@ const PreviewPage: React.FC = () => {
               >
                 OpenBento
               </a>
+              {' / '}
+              <a
+                href="/cat"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold hover:text-violet-500 transition-colors"
+              >
+                What is <span className="font-bold">.cat</span>?
+              </a>
             </p>
           </footer>
         )}

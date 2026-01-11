@@ -10,6 +10,7 @@ const ENABLE_PUBLIC_BUILDER = import.meta.env.VITE_ENABLE_PUBLIC_BUILDER === 'tr
 
 // Builder is lazy loaded since it's heavier and not the first view when landing is enabled
 const LazyBuilder = React.lazy(() => import('./components/Builder'));
+const CataloniaPage = React.lazy(() => import('./components/CataloniaPage'));
 
 // Helper to get current route
 function getRoute(): string {
@@ -90,6 +91,14 @@ function App() {
 
   if (route.startsWith('/doc')) {
     return <DocsPage />;
+  }
+
+  if (route === '/cat') {
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-[#FAFAFA]" />}>
+        <CataloniaPage />
+      </Suspense>
+    );
   }
 
   // Fallback for unknown routes, or maybe redirect to /

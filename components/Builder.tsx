@@ -1940,6 +1940,10 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                             <p className="inline-flex items-center gap-1">
                               Made with <span className="text-red-400">♥</span> using{' '}
                               <span className="font-semibold">OpenBento</span>
+                              {' / '}
+                              <a href="/cat" target="_blank" className="font-semibold text-gray-500 hover:text-violet-500">
+                                What is <span className="font-bold">.cat</span>?
+                              </a>
                             </p>
                           </div>
                         )}
@@ -2205,6 +2209,16 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                 className="text-gray-400 font-semibold hover:text-violet-500 transition-colors"
               >
                 OpenBento
+              </a>
+              {' / '}
+              <a
+                href="/cat"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 font-semibold hover:text-violet-500 transition-colors"
+                title="What is .cat?"
+              >
+                What is <span className="font-bold">.cat</span>?
               </a>
             </p>
           </footer>
