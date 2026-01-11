@@ -4,9 +4,12 @@ import { getBento, getOrCreateActiveBento, setActiveBentoId } from '../services/
 import Block from './Block';
 import { buildSocialUrl, formatFollowerCount, getSocialPlatformOption } from '../socialPlatforms';
 import { getMobileLayout, MOBILE_GRID_CONFIG } from '../utils/mobileLayout';
+import { AnimatePresence } from 'framer-motion';
+import CataloniaPage from './CataloniaPage';
 
 const PreviewPage: React.FC = () => {
   const [bento, setBento] = useState<SavedBento | null>(null);
+  const [isCatOpen, setIsCatOpen] = useState(false);
 
   useEffect(() => {
     const loadBento = async () => {
@@ -328,18 +331,22 @@ const PreviewPage: React.FC = () => {
                 OpenBento
               </a>
               {' / '}
-              <a
-                href="/cat"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => setIsCatOpen(true)}
                 className="font-semibold hover:text-violet-500 transition-colors"
               >
                 What is <span className="font-bold">.cat</span>?
-              </a>
+              </button>
             </p>
           </footer>
         )}
       </div>
+
+      <AnimatePresence>
+        {isCatOpen && (
+          <CataloniaPage onClose={() => setIsCatOpen(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

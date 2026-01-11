@@ -10,7 +10,6 @@ const ENABLE_PUBLIC_BUILDER = import.meta.env.VITE_ENABLE_PUBLIC_BUILDER === 'tr
 
 // Builder is lazy loaded since it's heavier and not the first view when landing is enabled
 const LazyBuilder = React.lazy(() => import('./components/Builder'));
-const CataloniaPage = React.lazy(() => import('./components/CataloniaPage'));
 
 // Helper to get current route
 function getRoute(): string {
@@ -75,24 +74,6 @@ function MainApp() {
 
 function App() {
   const route = getRoute();
-
-  // Debug logging (remove after fixing)
-  if (typeof window !== 'undefined' && window.location.pathname.includes('cat')) {
-    console.log('[OpenBento Debug] Route:', route, 'Pathname:', window.location.pathname);
-  }
-
-  // Check for exact /cat route (robust check)
-  const normalizedRoute = route.toLowerCase().replace(/\/$/, '') || '/';
-  const isCatRoute = normalizedRoute === '/cat' ||
-    window.location.pathname.toLowerCase().replace(/\/$/, '').endsWith('/cat');
-
-  if (isCatRoute) {
-    return (
-      <Suspense fallback={<div className="min-h-screen bg-[#FAFAFA]" />}>
-        <CataloniaPage />
-      </Suspense>
-    );
-  }
 
   if (route === '/preview' || route === '/') {
     return <PreviewPage />;

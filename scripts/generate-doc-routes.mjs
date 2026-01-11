@@ -69,14 +69,6 @@ for (const route of docRoutes) {
   console.log(`  /doc/${route}/index.html`);
 }
 
-// Generate static HTML for /cat
-const catDistDir = path.join(distDir, 'cat');
-if (!fs.existsSync(catDistDir)) {
-  fs.mkdirSync(catDistDir, { recursive: true });
-}
-fs.writeFileSync(path.join(catDistDir, 'index.html'), indexHtml);
-console.log('  /cat/index.html');
-
 // Also create a 404.html that is a copy of index.html to handle SPA routing fallback
 fs.writeFileSync(path.join(distDir, '404.html'), indexHtml);
 console.log('  /404.html');

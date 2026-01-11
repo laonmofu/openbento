@@ -1,39 +1,46 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ExternalLink, MapPin, Globe, Heart } from 'lucide-react';
 
-const CataloniaPage: React.FC = () => {
-    useEffect(() => {
-        document.title = 'What is .cat? - Catalonia';
-    }, []);
+interface CataloniaPageProps {
+    onClose: () => void;
+}
 
+const CataloniaPage: React.FC<CataloniaPageProps> = ({ onClose }) => {
     return (
-        <div className="min-h-screen bg-[#FAFAFA] text-gray-900 font-sans selection:bg-amber-100 selection:text-amber-900 overflow-x-hidden">
+        <motion.div
+            initial={{ opacity: 0, y: '100%' }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed inset-0 z-[100] bg-[#FAFAFA] text-gray-900 font-sans selection:bg-amber-100 selection:text-amber-900 overflow-y-auto overflow-x-hidden"
+        >
             {/* Navigation */}
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
+            <nav className="sticky top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
                 <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-                    <a
-                        href="/"
+                    <button
+                        onClick={onClose}
+                        type="button"
                         className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors font-medium text-sm"
                     >
                         <ArrowLeft size={16} />
-                        <span>Back to Home</span>
-                    </a>
-                    <span className="font-bold text-lg tracking-tight">.cat</span>
+                        <span>돌아가기</span>
+                    </button>
+                    <span className="font-bold text-lg tracking-tight">.cat 도메인</span>
                 </div>
             </nav>
 
             {/* Hero Section */}
-            <section className="pt-32 pb-20 px-6 relative overflow-hidden">
+            <section className="pt-20 pb-20 px-6 relative overflow-hidden">
                 {/* Abstract Background Elements (Senyera colors: Yellow & Red) */}
                 <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-yellow-300 rounded-full blur-[120px] opacity-20" />
                 <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-red-400 rounded-full blur-[120px] opacity-10" />
 
                 <div className="max-w-3xl mx-auto text-center relative z-10">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.2, duration: 0.6 }}
                     >
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold uppercase tracking-wider mb-6">
                             문화 & 도메인
@@ -49,17 +56,10 @@ const CataloniaPage: React.FC = () => {
             </section>
 
             {/* Content Section */}
-            <section className="py-16 px-6 relative z-10">
+            <section className="py-8 px-6 relative z-10">
                 <div className="max-w-4xl mx-auto space-y-24">
-
                     {/* Introduction */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5 }}
-                        className="grid md:grid-cols-2 gap-12 items-center"
-                    >
+                    <div className="grid md:grid-cols-2 gap-12 items-center">
                         <div className="prose prose-lg text-gray-600 keep-all">
                             <h2 className="text-3xl font-bold text-gray-900 mb-4">문화적 정체성</h2>
                             <p>
@@ -76,16 +76,10 @@ const CataloniaPage: React.FC = () => {
                             <div className="font-bold text-2xl text-gray-900 mb-2">1,100만 명+</div>
                             <p className="text-gray-500">전 세계 카탈루냐어 사용자</p>
                         </div>
-                    </motion.div>
+                    </div>
 
                     {/* About Catalonia */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5 }}
-                        className="bg-white rounded-[40px] p-8 md:p-16 shadow-2xl border border-gray-100"
-                    >
+                    <div className="bg-white rounded-[40px] p-8 md:p-16 shadow-2xl border border-gray-100">
                         <div className="max-w-3xl mx-auto text-center">
                             <span className="flex items-center justify-center gap-2 text-red-500 font-bold mb-4">
                                 <MapPin size={20} />
@@ -104,16 +98,10 @@ const CataloniaPage: React.FC = () => {
                                 <span className="px-4 py-2 bg-gray-50 rounded-xl text-gray-700 font-medium border border-gray-100">인간 탑 쌓기(Castells) 🏰</span>
                             </div>
                         </div>
-                    </motion.div>
+                    </div>
 
                     {/* Interesting Fact */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5 }}
-                        className="flex flex-col md:flex-row gap-8 items-stretch"
-                    >
+                    <div className="flex flex-col md:flex-row gap-8 items-stretch">
                         <div className="flex-1 bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-10 text-white flex flex-col justify-center">
                             <Heart className="w-10 h-10 text-red-400 mb-6" />
                             <h3 className="text-2xl font-bold mb-4">왜 .cat 인가요?</h3>
@@ -135,16 +123,22 @@ const CataloniaPage: React.FC = () => {
                                 Fundació .cat 방문하기 <ExternalLink size={16} />
                             </a>
                         </div>
-                    </motion.div>
-
+                    </div>
                 </div>
             </section>
 
             {/* Footer */}
             <footer className="py-12 text-center text-gray-500 text-sm">
                 <p>© {new Date().getFullYear()} mofu.cat. All rights reserved.</p>
+                <button
+                    onClick={onClose}
+                    type="button"
+                    className="mt-8 px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full transition-colors font-medium"
+                >
+                    닫기
+                </button>
             </footer>
-        </div>
+        </motion.div>
     );
 };
 

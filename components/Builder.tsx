@@ -47,6 +47,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import CataloniaPage from './CataloniaPage';
 
 interface BuilderProps {
   onBack?: () => void;
@@ -438,6 +439,7 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
   const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
   const [dragOverBlockId, setDragOverBlockId] = useState<string | null>(null);
   const [dragOverSlotIndex, setDragOverSlotIndex] = useState<number | null>(null);
+  const [isCatOpen, setIsCatOpen] = useState(false);
   const [resizingBlockId, setResizingBlockId] = useState<string | null>(null);
   const [extraRows, setExtraRows] = useState(0); // Extra rows added by user
   const {
@@ -1941,9 +1943,13 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                               Made with <span className="text-red-400">♥</span> using{' '}
                               <span className="font-semibold">OpenBento</span>
                               {' / '}
-                              <a href="/cat" target="_blank" className="font-semibold text-gray-500 hover:text-violet-500">
+                              <button
+                                onClick={() => setIsCatOpen(true)}
+                                type="button"
+                                className="font-semibold text-gray-500 hover:text-violet-500"
+                              >
                                 What is <span className="font-bold">.cat</span>?
-                              </a>
+                              </button>
                             </p>
                           </div>
                         )}
@@ -2211,15 +2217,14 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                 OpenBento
               </a>
               {' / '}
-              <a
-                href="/cat"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => setIsCatOpen(true)}
+                type="button"
                 className="text-gray-400 font-semibold hover:text-violet-500 transition-colors"
                 title="What is .cat?"
               >
                 What is <span className="font-bold">.cat</span>?
-              </a>
+              </button>
             </p>
           </footer>
         )}
@@ -2811,6 +2816,12 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
               </div>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isCatOpen && (
+          <CataloniaPage onClose={() => setIsCatOpen(false)} />
         )}
       </AnimatePresence>
     </div>
