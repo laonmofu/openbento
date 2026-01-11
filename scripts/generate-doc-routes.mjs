@@ -77,28 +77,8 @@ if (!fs.existsSync(catDistDir)) {
 fs.writeFileSync(path.join(catDistDir, 'index.html'), indexHtml);
 console.log('  /cat/index.html');
 
-// Also create a 404.html that redirects to handle any missed routes
-const notFoundHtml = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Redirecting...</title>
-  <script>
-    // Redirect to the SPA with the current path
-    const path = window.location.pathname;
-    const base = '${process.env.GITHUB_ACTIONS ? '/openbento' : ''}';
-    if (path.startsWith(base)) {
-      sessionStorage.setItem('redirect', path);
-      window.location.replace(base + '/');
-    }
-  </script>
-</head>
-<body>
-  <p>Redirecting...</p>
-</body>
-</html>`;
-
-fs.writeFileSync(path.join(distDir, '404.html'), notFoundHtml);
+// Also create a 404.html that is a copy of index.html to handle SPA routing fallback
+fs.writeFileSync(path.join(distDir, '404.html'), indexHtml);
 console.log('  /404.html');
 
 console.log('\\nDone! Static doc routes generated successfully.');

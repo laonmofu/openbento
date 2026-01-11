@@ -81,8 +81,12 @@ function App() {
     console.log('[OpenBento Debug] Route:', route, 'Pathname:', window.location.pathname);
   }
 
-  // Check for exact /cat route first
-  if (route === '/cat' || window.location.pathname === '/cat' || window.location.pathname.endsWith('/cat')) {
+  // Check for exact /cat route (robust check)
+  const normalizedRoute = route.toLowerCase().replace(/\/$/, '') || '/';
+  const isCatRoute = normalizedRoute === '/cat' ||
+    window.location.pathname.toLowerCase().replace(/\/$/, '').endsWith('/cat');
+
+  if (isCatRoute) {
     return (
       <Suspense fallback={<div className="min-h-screen bg-[#FAFAFA]" />}>
         <CataloniaPage />
