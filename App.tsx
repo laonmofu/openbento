@@ -80,6 +80,15 @@ function App() {
     return <PreviewPage />;
   }
 
+  // Public route: Catalonia page (always accessible in production)
+  if (route === '/cat') {
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-[#FAFAFA]" />}>
+        <CataloniaPage />
+      </Suspense>
+    );
+  }
+
   // Only allow builder access in development mode or if explicitly enabled
   if ((import.meta.env.DEV || ENABLE_PUBLIC_BUILDER) && route === '/builder') {
     return <MainApp />;
@@ -91,14 +100,6 @@ function App() {
 
   if (route.startsWith('/doc')) {
     return <DocsPage />;
-  }
-
-  if (route === '/cat') {
-    return (
-      <Suspense fallback={<div className="min-h-screen bg-[#FAFAFA]" />}>
-        <CataloniaPage />
-      </Suspense>
-    );
   }
 
   // Fallback for unknown routes, or maybe redirect to /
