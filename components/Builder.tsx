@@ -1941,7 +1941,7 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
                               Made with <span className="text-red-400">♥</span> using{' '}
                               <span className="font-semibold">OpenBento</span>
                               {' / '}
-                              <a href="/cat" className="font-semibold text-gray-500 hover:text-violet-500">
+                              <a href="/cat" target="_blank" className="font-semibold text-gray-500 hover:text-violet-500">
                                 What is <span className="font-bold">.cat</span>?
                               </a>
                             </p>
@@ -2213,6 +2213,8 @@ const Builder: React.FC<BuilderProps> = ({ onBack }) => {
               {' / '}
               <a
                 href="/cat"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-gray-400 font-semibold hover:text-violet-500 transition-colors"
                 title="What is .cat?"
               >
